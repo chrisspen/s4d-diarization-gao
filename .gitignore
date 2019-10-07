@@ -4,5 +4,5 @@ s4d.egg-info/
 *.pyc
 tutorials/
 gaoS4D/
-
-
+*.out
+*.geany
