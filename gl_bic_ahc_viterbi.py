@@ -122,7 +122,7 @@ def _viterbiDecode(mfcc, bich_diar, thr_vit, wavFile, wdir, save_all):
     return vit_diar
 
 
-def _outputWave(wavFile, vit_diar, outPath):
+def _outputWave(wavFile, vit_diar, outPath, combine=False):
     finalList = []
     spkMap = OrderedDict()
     rawAudio = AudioSegment.from_wav(wavFile)
@@ -139,13 +139,24 @@ def _outputWave(wavFile, vit_diar, outPath):
         for start, end in segList:
             start = start * 10
             end = end * 10
-            if outAudio is None:
-                outAudio = rawAudio[start:end]
+            if combine:
+                if outAudio is None:
+                    outAudio = rawAudio[start:end]
+                else:
+                    outAudio = outAudio + rawAudio[start:end]
             else:
-                outAudio = outAudio + rawAudio[start:end]
+                if outAudio is None:
+                    outAudio = [rawAudio[start:end]]
+                else:
+                    outAudio += [rawAudio[start:end]]
         if outAudio:
-            outFile = "{}/{}.wav".format(outPath, spk)
-            outAudio.export(outFile, format='wav')
+            if combine:
+                outFile = "{}/{}.wav".format(outPath, spk)
+                outAudio.export(outFile, format='wav')
+            else:
+                for i, outAudioPart in enumerate(outAudio):
+                    outFile = "{}/{}-{}.wav".format(outPath, spk, i)
+                    outAudioPart.export(outFile, format='wav')
     return finalList
 
 
