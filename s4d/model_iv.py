@@ -67,13 +67,13 @@ class ModelIV:
             print('sn_cov: ', self.sn_cov.shape)
 
     def train(self, feature_server, idmap, normalization=True):
-        stat = StatServer(idmap, distrib_nb=self.ubm.distrib_nb(), feature_size=self.ubm.dim()) 
+        stat = StatServer(idmap, distrib_nb=self.ubm.distrib_nb(), feature_size=self.ubm.dim())
         stat.accumulate_stat(ubm=self.ubm, feature_server=feature_server, seg_indices=range(stat.segset.shape[0]), num_thread=self.nb_thread)
         stat = stat.sum_stat_per_model()[0]
-        
+
         fa = FactorAnalyser(mean=self.tv_mean, Sigma=self.tv_sigma, F=self.tv)
         self.ivectors = fa.extract_ivectors_single(self.ubm, stat)
-        
+
         if normalization:
             self.ivectors.spectral_norm_stat1(self.norm_mean[:1], self.norm_cov[:1])
 

@@ -404,14 +404,14 @@ class Diar():
             if i in out_diarization._attributes.names:
                 lMatchAttr.append(i)
         assert len(lMatchAttr)!=0,"No attribute matches"
-        
+
         lSegments=list()
         for i in out_diarization:
             seg=Segment(self._attributes.defaults,self._attributes)
             for y in lMatchAttr:
                 seg._set_attr(y,i[y])
             lSegments.append(seg)
-        
+
         self.segments += lSegments
 
     def insert(self, i, **kwargs):
@@ -635,7 +635,7 @@ class Diar():
         :param epsilon: a int value
         :param coveringOverlap: a boolean value
         """
-        
+
         #index = self.make_index(['show'])
         #lst = list()
         #for show in index:
@@ -748,7 +748,7 @@ class Diar():
             if segment['start'] < first:
                 first = segment['start']
         return first
-    
+
     @classmethod
     def read_seg(cls, filename, normalize_cluster=False, encoding="utf8"):
         """

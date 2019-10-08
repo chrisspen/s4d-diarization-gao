@@ -150,9 +150,9 @@ def div_gauss(cep, show='empty', win=250, shift=0):
     The segmentation detects the instantaneous change points corresponding to
     segment boundaries. The proposed algorithm is based on the detection of
     local maxima. It detects the change points through a gaussian divergence
-    (see equation below), computed using Gaussians with diagonal covariance 
-    matrices. The left and right gaussians are estimated over a five-second 
-    window sliding along the whole signal (2.5 seconds for each gaussian, 
+    (see equation below), computed using Gaussians with diagonal covariance
+    matrices. The left and right gaussians are estimated over a five-second
+    window sliding along the whole signal (2.5 seconds for each gaussian,
     given *win* =250 features).
     A change point, i.e. a segment boundary, is present in the middle of the
     window when the gaussian divergence score reaches a local maximum.

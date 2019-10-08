@@ -7,10 +7,10 @@
 #
 # SIDEKIT is a python package for speaker verification.
 # Home page: http://www-lium.univ-lemans.fr/sidekit/
-#    
+#
 # SIDEKIT is free software: you can redistribute it and/or modify
-# it under the terms of the GNU LLesser General Public License as 
-# published by the Free Software Foundation, either version 3 of the License, 
+# it under the terms of the GNU LLesser General Public License as
+# published by the Free Software Foundation, either version 3 of the License,
 # or (at your option) any later version.
 #
 # SIDEKIT is distributed in the hope that it will be useful,
@@ -72,14 +72,14 @@ class FeaturesServer_test(FeaturesServer):
         or `htk`, for audio files, format is given by the extension
     :attr config: pre-defined configuration for speaker diarization or recognition
         in 8 or 16kHz. Default is speaker recognition 8kHz
-    :attr single_channel_extension: list with a single extension to add to 
-        the audio filename when processing a single channel file. 
+    :attr single_channel_extension: list with a single extension to add to
+        the audio filename when processing a single channel file.
         Default is empty, means the feature file has the same speaker as
         the audio file
-    :attr double_channel_extension: list of two channel extension to add 
-        to the audio filename when processing two channel files. 
+    :attr double_channel_extension: list of two channel extension to add
+        to the audio filename when processing two channel files.
         Default is ['_a', '_b']
-    :attr sampling_frequency: sample frequency in Hz, default is None, 
+    :attr sampling_frequency: sample frequency in Hz, default is None,
         determine when reading the audio file
     :attr lower_frequency: lower frequency limit of the filter bank
     :attr higher_frequency: higher frequency limit of the filter bank
@@ -89,19 +89,19 @@ class FeaturesServer_test(FeaturesServer):
     :attr shift: time shift between two feature vectors
     :attr ceps_number: number of cepstral coefficients to extract
     :attr snr: snr level to consider for SNR-based voice activity detection
-    :attr vad: type of voice activity detection to use, can be 'snr', 'energy' 
-        (using a three Gaussian detector) or 'label' when reading the info from 
+    :attr vad: type of voice activity detection to use, can be 'snr', 'energy'
+        (using a three Gaussian detector) or 'label' when reading the info from
         pre-computed label files
-    :attr feat_norm: normalization of the acoustic features, can be 
-        'cms' for cepstral mean subtraction, 'mvn' for mean variance 
+    :attr feat_norm: normalization of the acoustic features, can be
+        'cms' for cepstral mean subtraction, 'mvn' for mean variance
         normalization or 'stg' for short term Gaussianization
     :attr log_e: boolean, keep log energy
     :attr delta: boolean, add the first derivative of the cepstral coefficients
-    :attr double_delta: boolean, add the second derivative of the cepstral 
+    :attr double_delta: boolean, add the second derivative of the cepstral
         coefficients
     :attr rasta: boolean, perform RASTA filtering
-    :attr keep_all_features: boolean, if False, only features labeled as 
-        "speech" by the vad are saved if True, all features are saved and 
+    :attr keep_all_features: boolean, if False, only features labeled as
+        "speech" by the vad are saved if True, all features are saved and
         a label file is produced
 
     """
@@ -165,7 +165,7 @@ class FeaturesServer_test(FeaturesServer):
         self.vad = None
         self.feat_norm = None
         self.log_e = False
-        self.dct_pca = False        
+        self.dct_pca = False
         self.dct_pca_config = (12, 12, None)
         self.sdc = False
         self.sdc_config = (1, 3, 7)
@@ -250,7 +250,7 @@ class FeaturesServer_test(FeaturesServer):
             self.spec = True
         if mspec:
             self.mspec = True
-        
+
         self.cep = []
         self.label = []
         self.show = 'empty'
@@ -382,7 +382,7 @@ class FeaturesServer_test(FeaturesServer):
         self.rasta = False
         self.keep_all_features = True
         self.mspec = True
- 
+
     def _config_lid_8k_sdc(self):
         """
         7 MFCC + 1 - 3 - 7 SDC
@@ -430,7 +430,7 @@ class FeaturesServer_test(FeaturesServer):
 
         for i in range(0, 200, 5):
             print('==> ', i, x[i:i+5])
-        
+
         channel_ext = []
         channel_nb = x.shape[1]
         np.random.seed(0)
@@ -515,7 +515,7 @@ class FeaturesServer_test(FeaturesServer):
                  maxfreq=self.higher_frequency,
                  nlinfilt=self.linear_filters,
                  nwin=self.window_size, nlogfilt=self.log_filters,
-                 nceps=self.ceps_number, get_spec=self.spec, 
+                 nceps=self.ceps_number, get_spec=self.spec,
                  get_mspec=self.mspec)
             print('test MFCC: cep', c[0][0:5,:])
             print('test MFCC: e', c[1][0:5])
@@ -593,14 +593,14 @@ class FeaturesServer_test(FeaturesServer):
             cep = rasta_filt(cep)
             cep[:2, :] = cep[2, :]
             label[:2] = label[2]
-            
+
         return cep, label
 
     def _delta_and_2delta(self, cep):
         """
         Add deltas and double deltas.
         :param cep: a matrix of cepstral cefficients
-        
+
         :return: the cepstral coefficient stacked with deltas and double deltas
         """
         if self.delta:
@@ -651,9 +651,9 @@ class FeaturesServer_test(FeaturesServer):
         """
         Load a cep from audio or mfcc file. This method loads all channels
         available in the file.
-        
+
         :param show: the speaker of the show to load
-        
+
         :return: the cep array and the label array
         """
         # test if features is already computed
@@ -705,14 +705,14 @@ class FeaturesServer_test(FeaturesServer):
     def save(self, show, filename, mfcc_format, and_label=True):
         """
         Save the cep array in file
-        
+
         :param show: the speaker of the show to save (loaded if need)
         :param filename: the file speaker of the mffc file or a list of 2 filenames
             for the case of double channel files
         :param mfcc_format: format of the mfcc file taken in values
             ['pickle', 'spro4', 'htk']
         :param and_label: boolean, if True save label files
-        
+
         :raise: Exception if feature format is unknown
         """
         self.load(show)
@@ -725,11 +725,11 @@ class FeaturesServer_test(FeaturesServer):
 
 
     @process_parallel_lists
-    def save_list(self, audio_file_list, feature_file_list, mfcc_format, feature_dir, 
+    def save_list(self, audio_file_list, feature_file_list, mfcc_format, feature_dir,
                   feature_file_extension, and_label=False, numThread=1):
         """
         Function that takes a list of audio files and extract features
-        
+
         :param audio_file_list: an array of string containing the speaker of the feature
             files to load
         :param feature_file_list: list of feature files to save, should correspond to the input audio_file_list
@@ -761,10 +761,10 @@ class FeaturesServer_test(FeaturesServer):
                       feature_file_extension, and_label=False, numThread=1):
         """
         Extract features from audio file using parallel computation
-        
+
         :param input_audio_list: an array of string containing the speaker
             of the audio files to process
-        :param output_feature_list: an array of string containing the 
+        :param output_feature_list: an array of string containing the
             speaker of the features files to save
         :param mfcc_format: format of the output feature files, could be spro4, htk, pickle
         :param feature_dir: directory where to save the feature files
@@ -775,7 +775,7 @@ class FeaturesServer_test(FeaturesServer):
         # Split the features to process for multi-threading
         loa = np.array_split(input_audio_list, numThread)
         lof = np.array_split(output_feature_list, numThread)
-    
+
         jobs = []
         multiprocessing.freeze_support()
         for idx, feat in enumerate(loa):
@@ -789,19 +789,19 @@ class FeaturesServer_test(FeaturesServer):
 
     def _load_and_stack_worker(self, input_queue, output):
         """Load a list of feature files into a Queue object
-        
+
         :param input_queue: a Queue object
         :param output: a list of Queue objects to fill
         """
         while True:
             next_task = input_queue.get()
-            
+
             if next_task is None:
                 # Poison pill means shutdown
                 output.put(None)
                 input_queue.task_done()
                 break
-            
+
             # check which channel to keep from the file
             if next_task.endswith(self.double_channel_extension[0]) and (self.from_file == 'audio'):
                 next_task = next_task[:-len(self.double_channel_extension[0])]
@@ -812,38 +812,38 @@ class FeaturesServer_test(FeaturesServer):
             else:
                 cep = self.load(next_task)[0][0]
                 output.put(cep)
-            
+
             input_queue.task_done()
 
     def load_and_stack(self, fileList, numThread=1):
-        """Load a list of feature files and stack them in a unique ndarray. 
+        """Load a list of feature files and stack them in a unique ndarray.
         The list of files to load is splited in sublists processed in parallel
-        
+
         :param fileList: a list of files to load
         :param numThread: numbe of thead (optional, default is 1)
         """
         queue_in = multiprocessing.JoinableQueue(maxsize=len(fileList)+numThread)
         queue_out = []
-        
+
         # Start worker processes
         jobs = []
         for i in range(numThread):
             queue_out.append(multiprocessing.Queue())
-            p = multiprocessing.Process(target=self._load_and_stack_worker, 
+            p = multiprocessing.Process(target=self._load_and_stack_worker,
                                         args=(queue_in, queue_out[i]))
             jobs.append(p)
             p.start()
-        
+
         # Submit tasks
         for task in fileList:
             queue_in.put(task)
 
         for task in range(numThread):
             queue_in.put(None)
-        
+
         # Wait for all the tasks to finish
         queue_in.join()
-                   
+
         output = []
         for q in queue_out:
             while True:
@@ -859,15 +859,15 @@ class FeaturesServer_test(FeaturesServer):
         return all_cep
 
     def load_and_stack_threading(self, fileList, numThread=1):
-        """Load a list of feature files and stack them in a unique ndarray. 
+        """Load a list of feature files and stack them in a unique ndarray.
         The list of files to load is splited in sublists processed in parallel
-        
+
         :param fileList: a list of files to load
         :param numThread: numbe of thead (optional, default is 1)
         """
         queue_in = multiprocessing.JoinableQueue(maxsize=len(fileList)+numThread)
         queue_out = []
-        
+
         # Start worker processes
         jobs = []
         for i in range(numThread):
@@ -875,17 +875,17 @@ class FeaturesServer_test(FeaturesServer):
             p = threading.Thread(target=self._load_and_stack_worker, args=(queue_in, queue_out[i]))
             jobs.append(p)
             p.start()
-        
+
         # Submit tasks
         for task in fileList:
             queue_in.put(task)
 
         for task in range(numThread):
             queue_in.put(None)
-        
+
         # Wait for all the tasks to finish
         queue_in.join()
-                   
+
         output = []
         for q in queue_out:
             while True:

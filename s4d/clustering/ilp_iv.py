@@ -24,12 +24,12 @@ class ILP_IV:
 
     def perform(self, save_ilp=False):
         """
-        Creates an LP problem and solves it using GLPK library 
+        Creates an LP problem and solves it using GLPK library
         (with ecyglpki Cython interface)
         :param save_ilp: if True, saves the generated problem
         in CPLEX LP format (problem.ilp), and the solution of
         the problem (solution.ilp).
-        :return: a Diar object with the new clusters and a 
+        :return: a Diar object with the new clusters and a
         dictionary of clusters (old clusters as key, new ones
         as value in an array).
         """
@@ -87,7 +87,7 @@ class ILP_IV:
                     idx = lp.add_rows(1)
                     lp.set_mat_row(idx, {'{}{}{}'.format(cluster_j, self.sep, cluster_j):-1, col:1})
                     lp.set_row_bnds(idx, None, 0)
-                    
+
             lp.set_mat_row(row, r_cols)
             lp.set_row_bnds(row, 1, 1)
 

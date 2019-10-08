@@ -117,7 +117,7 @@ class Viterbi:
 
         """
 
-        iterations=[1, 2, 4, 4, 8]
+        iterations = [1, 2, 4, 4, 8]
         idx = int(numpy.log2(distrib_nb)) - 1
         iterations[idx] = max_it
 

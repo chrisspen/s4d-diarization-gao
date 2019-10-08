@@ -90,7 +90,7 @@ def automatonAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,diarFinal__clus
     diarHyp=copy.deepcopy(diarHyp)
     diarRef.sort()
     diarHyp.sort()
-    tolerance=abs(tolerance)     
+    tolerance=abs(tolerance)
 
     assert len(diarOverlapArea(diarRef))==0, "Error: diarRef parameter have some overlapped segments.\nReason: No overlap segment allowed.\nSolution: Please put them apart.\n"
     assert len(diarOverlapArea(diarHyp))==0, "Error: diarHyp parameter have some overlapped segments.\nReason: No overlap segment allowed.\nSolution: Please put them apart.\n"
@@ -145,7 +145,7 @@ def automatonAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,diarFinal__clus
             if diarUem is not None:
                 diarRefFake=releaseFramesAccordingToDiar(diar=diarRefFake,basisDiar=diarUem)
             diarRefFake=releaseFramesAccordingToDiar(diar=diarRefFake,basisDiar=diarRef)
-            
+
             for y in diarRefFake:
                 y['show']==j['show']
                 if Segment.intersection(y,j) is not None and segmentExistAccordingToTolerance(y,tolerance):
@@ -203,7 +203,7 @@ def automatonAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,diarFinal__clus
     for u in diarFinal__clusterToDeleteAccordingToDiarRef:
         if u in dictionary:
             diarHyp=dropCluster(dictionary[u],diarHyp)
-    
+
     rtn=dict()
     rtn['idxIncremental']=idxIncremental
     rtn['diar']=dict()
@@ -215,7 +215,7 @@ def automatonAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,diarFinal__clus
 
     return rtn
 
-# Returns a dict object with an automaton which only corrects the segmentation errors 
+# Returns a dict object with an automaton which only corrects the segmentation errors
 ## WARNING: The diarizations in parameter have to be with no overlapped segment. Put them apart
 ## WARNING: The automaton follows the temporal order
 ## tolerance: In centiseconds
@@ -237,7 +237,7 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
     # Merge Format: [segment1, segment2] -> We have to move the segment (the two segments have to have the same attributes)
     actionsSegmentationBoundary["Merge"]=actionsSegmentationBoundaryMerge
     if modeNoGap == False:
-        actionsSegmentationSegment=collections.OrderedDict()        
+        actionsSegmentationSegment=collections.OrderedDict()
         actionsSegmentationSegmentCreate=list()
         actionsSegmentationSegmentDelete=list()
         # Create Format: [show,cluster,cluster_type, start, end] -> We have to create a new segment
@@ -260,7 +260,7 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
     # Merge Format: [segment1, segment2] -> We have to move the segment (the two segments have to have the same attributes)
     actionsIncrementalSegmentationBoundary["Merge"]=actionsIncrementalSegmentationBoundaryMerge
     if modeNoGap == False:
-        actionsIncrementalSegmentationSegment=collections.OrderedDict()        
+        actionsIncrementalSegmentationSegment=collections.OrderedDict()
         actionsIncrementalSegmentationSegmentCreate=list()
         actionsIncrementalSegmentationSegmentDelete=list()
         # Create Format: [show,cluster,cluster_type, start, end] -> We have to create a new segment
@@ -292,7 +292,7 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
     tolerance=abs(tolerance)
     if not strictBoundary:
         diarRef.pack()
-        diarHyp.pack()     
+        diarHyp.pack()
 
     assert len(diarOverlapArea(diarRef))==0, "Error: diarRef parameter have some overlapped segments.\nReason: No overlap segment allowed.\nSolution: Please put them apart.\n"
     assert len(diarOverlapArea(diarHyp))==0, "Error: diarHyp parameter have some overlapped segments.\nReason: No overlap segment allowed.\nSolution: Please put them apart.\n"
@@ -380,7 +380,7 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                             if modeNoGap==False:
                                 actionsSegmentationSegmentDelete.append(copy.deepcopy(y))
                                 actionsIncrementalSegmentationSegmentDeleteTurn.append(copy.deepcopy(y))
-                            valueTmp=dropSegment(y,valueTmp)               
+                            valueTmp=dropSegment(y,valueTmp)
                 else:
                     if y['start']>=(valueRefPrev['stop']-tolerance) and y['start']<(valueRef['start']-tolerance) and y['stop']<=(valueRef['start']+tolerance) and y['stop']>(valueRefPrev['stop']+tolerance):
                         if modeNoGap==False:
@@ -413,7 +413,7 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
         valueTmp=copy.deepcopy(diarHyp)
         for y in diarHyp:
             if Segment.intersection(y,valueRef) is not None:
-                if tolerance==0: 
+                if tolerance==0:
                     listHypRefSegment.append(y)
                 elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                     listHypRefSegment.append(y)
@@ -437,8 +437,8 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                 # Checks valueRef is not overtaken by tolerance
                 if segmentExistAccordingToTolerance(valueRef,tolerance):
                     # Absence of the segment, so we create it
-                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],valueRef['cluster'],'speakerManualNotDetected'+str(cpt+1),valueRef['start'],valueRef['stop']],['show','cluster','cluster_type','start','stop'])))                    
-                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],valueRef['cluster'],'speakerManualNotDetected'+str(cpt+1),valueRef['start'],valueRef['stop']],['show','cluster','cluster_type','start','stop'])))  
+                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],valueRef['cluster'],'speakerManualNotDetected'+str(cpt+1),valueRef['start'],valueRef['stop']],['show','cluster','cluster_type','start','stop'])))
+                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],valueRef['cluster'],'speakerManualNotDetected'+str(cpt+1),valueRef['start'],valueRef['stop']],['show','cluster','cluster_type','start','stop'])))
                     valueTmp.append(show=showname, cluster='speakerManualNotDetected'+str(cpt+1), start=valueRef['start'], stop=valueRef['stop'])
                     cpt+=1
         # If 1 then affectation + moving boundary if need be and/or creating boundary on stop
@@ -523,14 +523,14 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                     valueBoundaryStart=None
                     for y in valueTmp:
                         if Segment.intersection(y,valueRef) is not None:
-                            if tolerance==0: 
+                            if tolerance==0:
                                 listHypRefSegment.append(y)
                             elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                                 listHypRefSegment.append(y)
                             elif tolerance!=0:
                                 valueBoundaryStart=copy.deepcopy(y['stop'])
                     if valueBoundaryStart is None:
-                        valueBoundaryStart=valueRef['start']                    
+                        valueBoundaryStart=valueRef['start']
                     if modeNoGap__mergeStrat_BiggestCluster == True:
                         # Gets the cluster (it which has the most present frames)
                         dictHypRefSegmentDuration=dict()
@@ -548,15 +548,15 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                         clusterName=cls['cluster']
                     # Moves the boundaries
                     # Pre-string for a good running: listHypRefSegment sorted in ascending order on start, don't overtake the value valueRef['stop'] and valueRef['start']
-                    if modeNoGap == False:            
-                        for idx,z in enumerate(listHypRefSegment): 
+                    if modeNoGap == False:
+                        for idx,z in enumerate(listHypRefSegment):
                             nearStop=valueRef['stop']
                             if idx==0:
                                 boundStop=z['stop']
                             if z['stop']>=valueRef['stop']:
                                 # If we reach the value of ref stop with an overlap segment
                                 boundStop=valueRef['stop']
-                            if boundStop!=valueRef['stop']:    
+                            if boundStop!=valueRef['stop']:
                                 for r in range(idx+1,len(listHypRefSegment)):
                                     if (idx!=0 and z['stop']<=boundStop) or (z['stop']>=listHypRefSegment[r]['start'] and z['stop']<=listHypRefSegment[r]['stop']):
                                         nearStop=None
@@ -565,9 +565,9 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                                         nearStop=listHypRefSegment[r]['start']
                             if nearStop is not None and boundStop!=valueRef['stop']:
                                 if idx==0 and z['start']>valueRef['start'] and valueBoundaryStart!=z['start']:
-                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop']))) 
+                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))
                                     actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop'])))
-                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop']))) 
+                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))
                                     actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop'])))
                                     valueTmp.append(show=showname,cluster=clusterName,cluster_type=z['cluster_type'],start=valueBoundaryStart,stop=z['start'])
                                     valueTmp.append(show=showname,cluster=clusterName,cluster_type=z['cluster_type'],start=z["stop"],stop=nearStop)
@@ -579,8 +579,8 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                                     boundStop=nearStop
                             else:
                                 if idx==0 and z['start']>valueRef['start'] and valueBoundaryStart!=z['start']:
-                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))                    
-                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop']))) 
+                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))
+                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],clusterName,z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))
                                     valueTmp.append(show=showname,cluster=clusterName,cluster_type=z['cluster_type'],start=valueBoundaryStart,stop=z['start'])
                                 if boundStop<z['stop']:
                                     if z['stop']>=valueRef['stop']:
@@ -591,7 +591,7 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                     listHypRefSegment=list()
                     for y in valueTmp:
                         if Segment.intersection(y,valueRef) is not None:
-                            if tolerance==0: 
+                            if tolerance==0:
                                 listHypRefSegment.append(y)
                             elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                                 listHypRefSegment.append(y)
@@ -603,12 +603,12 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                                 replaced=True
                                 yTmp=copy.deepcopy(y)
                                 yTmp['cluster']=clusterName
-                                actionsSegmentationSegmentDelete.append(copy.deepcopy(y)) 
+                                actionsSegmentationSegmentDelete.append(copy.deepcopy(y))
                                 actionsIncrementalSegmentationSegmentDeleteTurn.append(copy.deepcopy(y))
                                 valueTmp=dropSegment(y,valueTmp)
-                                actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],yTmp['cluster'],yTmp['cluster_type'],yTmp['start'],yTmp['stop']],['show','cluster','cluster_type','start','stop']))) 
-                                actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],yTmp['cluster'],yTmp['cluster_type'],yTmp['start'],yTmp['stop']],['show','cluster','cluster_type','start','stop']))) 
-                                valueTmp.append_seg(yTmp)  
+                                actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],yTmp['cluster'],yTmp['cluster_type'],yTmp['start'],yTmp['stop']],['show','cluster','cluster_type','start','stop'])))
+                                actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],yTmp['cluster'],yTmp['cluster_type'],yTmp['start'],yTmp['stop']],['show','cluster','cluster_type','start','stop'])))
+                                valueTmp.append_seg(yTmp)
                         if replaced:
                             valueTmp.sort()
                     # Merges among them if > 1
@@ -617,7 +617,7 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                         listTmp=list()
                         for y in valueTmp:
                             if Segment.intersection(y,valueRef) is not None:
-                                if tolerance==0: 
+                                if tolerance==0:
                                     listTmp.append(y)
                                 elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                                     listTmp.append(y)
@@ -648,7 +648,7 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
     # SELECTS ALL THE HYPOTHESIS SEGMENTS AFTER THE LAST REFERENCE SEGMENT (means wrong clustered since silence in the reference)
         if i==len(diarRef)-1:
             valueTmp=copy.deepcopy(diarHyp)
-            for y in diarHyp:     
+            for y in diarHyp:
                 if y['start']>=valueRef['stop']:
                     if modeNoGap == False:
                         actionsSegmentationSegmentDelete.append(copy.deepcopy(y))
@@ -703,8 +703,8 @@ def automatonSegmentation(diarHyp,diarRef,diarUem=None,tolerance=0,modeNoGap=Fal
                                 pass
                             else:
                                 if bestMatch==u:
-                                    diarHyp=dropSegment(t,diarHyp)                                            
-     
+                                    diarHyp=dropSegment(t,diarHyp)
+
     rtn=dict()
     rtn['idxIncremental']=idxIncremental
     rtn['diar']=dict()
@@ -748,7 +748,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
     # Merge Format: [segment1, segment2] -> We have to move the segment (the two segments have to have the same attributes)
     actionsSegmentationBoundary["Merge"]=actionsSegmentationBoundaryMerge
     if modeNoGap==False:
-        actionsSegmentationSegment=collections.OrderedDict()        
+        actionsSegmentationSegment=collections.OrderedDict()
         actionsSegmentationSegmentCreate=list()
         actionsSegmentationSegmentDelete=list()
         # Create Format: [show,cluster,cluster_type, start, end] -> We have to create a new segment
@@ -779,7 +779,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
     # Merge Format: [segment1, segment2] -> We have to move the segment (the two segments have to have the same attributes)
     actionsIncrementalSegmentationBoundary["Merge"]=actionsIncrementalSegmentationBoundaryMerge
     if modeNoGap==False:
-        actionsIncrementalSegmentationSegment=collections.OrderedDict()        
+        actionsIncrementalSegmentationSegment=collections.OrderedDict()
         actionsIncrementalSegmentationSegmentCreate=list()
         actionsIncrementalSegmentationSegmentDelete=list()
         # Create Format: [show,cluster,cluster_type, start, end] -> We have to create a new segment
@@ -808,7 +808,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
     showname=diarRef.unique('show')[0]
     diarRef.sort()
     diarHyp.sort()
-    tolerance=abs(tolerance)     
+    tolerance=abs(tolerance)
 
     assert len(diarOverlapArea(diarRef))==0, "Error: diarRef parameter have some overlapped segments.\nReason: No overlap segment allowed.\nSolution: Please put them apart.\n"
     assert len(diarOverlapArea(diarHyp))==0, "Error: diarHyp parameter have some overlapped segments.\nReason: No overlap segment allowed.\nSolution: Please put them apart.\n"
@@ -867,7 +867,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                     if y['start']>=(valueRefPrev['stop']-tolerance) and y['stop']<=(valueRef['start']+tolerance):
                         # No action, all the segments in this interval are dropped
                         valueTmp=dropSegment(y,valueTmp)
-                    elif y['start']>=(valueRefPrev['stop']-tolerance) and y['stop']>(valueRef['start']+tolerance): 
+                    elif y['start']>=(valueRefPrev['stop']-tolerance) and y['stop']>(valueRef['start']+tolerance):
                         # Part allowing to know if we cut the segment or directly drop it
                         stopTmp=None
                         for u in range(i,len(diarRef)):
@@ -933,7 +933,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
         valueTmp=copy.deepcopy(diarHyp)
         for y in diarHyp:
             if Segment.intersection(y,valueRef) is not None:
-                if tolerance==0: 
+                if tolerance==0:
                     listHypRefSegment.append(y)
                 elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                     listHypRefSegment.append(y)
@@ -957,8 +957,8 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                 # Checks valueRef is not overtaken by tolerance
                 if segmentExistAccordingToTolerance(valueRef,tolerance):
                     # Absence of the segment, so we create it
-                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],valueRef['cluster'],valueRef['cluster_type'],valueRef['start'],valueRef['stop']],['show','cluster','cluster_type','start','stop'])))                    
-                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],valueRef['cluster'],valueRef['cluster_type'],valueRef['start'],valueRef['stop']],['show','cluster','cluster_type','start','stop'])))    
+                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],valueRef['cluster'],valueRef['cluster_type'],valueRef['start'],valueRef['stop']],['show','cluster','cluster_type','start','stop'])))
+                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],valueRef['cluster'],valueRef['cluster_type'],valueRef['start'],valueRef['stop']],['show','cluster','cluster_type','start','stop'])))
                     # Affectation part
                     if valueRef['cluster'] not in dictionary:
                         dictionary[copy.deepcopy(valueRef['cluster'])]='speakerManualNotDetected'+str(cpt+1)
@@ -969,7 +969,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                         cpt+=1
                     else:
                         # Create with the already associated cluster
-                        valueTmp.append(show=showname, cluster=dictionary[valueRef['cluster']], start=valueRef['start'], stop=valueRef['stop'])   
+                        valueTmp.append(show=showname, cluster=dictionary[valueRef['cluster']], start=valueRef['start'], stop=valueRef['stop'])
         # If 1 then affectation + moving boundary if need be and/or creating boundary on stop
         # If > 1 then affectation + moving boundary if need be and/or creating boundary on stop + merge
         else:
@@ -1049,7 +1049,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                 listHypRefSegment=list()
                 for y in valueTmp:
                     if Segment.intersection(y,valueRef) is not None:
-                        if tolerance==0: 
+                        if tolerance==0:
                             listHypRefSegment.append(y)
                         elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                             listHypRefSegment.append(y)
@@ -1093,7 +1093,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                     valueBoundaryStart=None
                     for y in valueTmp:
                         if Segment.intersection(y,valueRef) is not None:
-                            if tolerance==0: 
+                            if tolerance==0:
                                 listHypRefSegment.append(y)
                             elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                                 listHypRefSegment.append(y)
@@ -1101,8 +1101,8 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                                 valueBoundaryStart=copy.deepcopy(y['stop'])
                     if valueBoundaryStart is None:
                         valueBoundaryStart=valueRef['start']
-                    if modeNoGap == False:        
-                        for idx,z in enumerate(listHypRefSegment): 
+                    if modeNoGap == False:
+                        for idx,z in enumerate(listHypRefSegment):
                             # Moves the boundaries
                             # Pre-string for a good running: listHypRefSegment sorted in ascending order on start, don't overtake the value valueRef['stop'] and valueRef['start']
                             nearStop=valueRef['stop']
@@ -1110,8 +1110,8 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                                 boundStop=z['stop']
                             if z['stop']>=valueRef['stop']:
                                 # If we reach the value of ref stop with an overlap segment
-                                boundStop=valueRef['stop']                                
-                            if boundStop!=valueRef['stop']:    
+                                boundStop=valueRef['stop']
+                            if boundStop!=valueRef['stop']:
                                 for r in range(idx+1,len(listHypRefSegment)):
                                     if (idx!=0 and z['stop']<=boundStop) or (z['stop']>=listHypRefSegment[r]['start'] and z['stop']<=listHypRefSegment[r]['stop']):
                                         nearStop=None
@@ -1120,22 +1120,22 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                                         nearStop=listHypRefSegment[r]['start']
                             if nearStop is not None and boundStop!=valueRef['stop']:
                                 if idx==0 and z['start']>valueRef['start'] and valueBoundaryStart!=z['start']:
-                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop']))) 
-                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop']))) 
-                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop']))) 
-                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop']))) 
+                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))
+                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop'])))
+                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))
+                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop'])))
                                     valueTmp.append(show=showname,cluster=z['cluster'],cluster_type=z['cluster_type'],start=valueBoundaryStart,stop=z['start'])
                                     valueTmp.append(show=showname,cluster=z['cluster'],cluster_type=z['cluster_type'],start=z["stop"],stop=nearStop)
                                     boundStop=nearStop
                                 else:
-                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop']))) 
-                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop']))) 
+                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop'])))
+                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],z['stop'],nearStop],['show','cluster','cluster_type','start','stop'])))
                                     valueTmp.append(show=showname,cluster=z['cluster'],cluster_type=z['cluster_type'],start=z['stop'],stop=nearStop)
                                     boundStop=nearStop
                             else:
                                 if idx==0 and z['start']>valueRef['start'] and valueBoundaryStart!=z['start']:
-                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))                    
-                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))  
+                                    actionsSegmentationSegmentCreate.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))
+                                    actionsIncrementalSegmentationSegmentCreateTurn.append(copy.deepcopy(Segment([valueRef['show'],z['cluster'],z['cluster_type'],valueBoundaryStart,z['start']],['show','cluster','cluster_type','start','stop'])))
                                     valueTmp.append(show=showname,cluster=z['cluster'],cluster_type=z['cluster_type'],start=valueBoundaryStart,stop=z['start'])
                                 if boundStop<z['stop']:
                                     if z['stop']>=valueRef['stop']:
@@ -1146,7 +1146,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                     listHypRefSegment=list()
                     for y in valueTmp:
                         if Segment.intersection(y,valueRef) is not None:
-                            if tolerance==0: 
+                            if tolerance==0:
                                 listHypRefSegment.append(y)
                             elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                                 listHypRefSegment.append(y)
@@ -1156,7 +1156,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                         listTmp=list()
                         for y in valueTmp:
                             if Segment.intersection(y,valueRef) is not None:
-                                if tolerance==0: 
+                                if tolerance==0:
                                     listTmp.append(y)
                                 elif tolerance!=0 and y['start']>=(valueRef['start']-tolerance):
                                     listTmp.append(y)
@@ -1183,14 +1183,14 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
                                     valueTmp.sort()
                                 newSegment,valueTmp=mergeSegment(newSegment,listTmp[y],valueTmp)
                             else:
-                                newSegment=listTmp[y]                    
+                                newSegment=listTmp[y]
         # Updates diarHyp
         diarHyp=valueTmp
 
     # SELECTS ALL THE HYPOTHESIS SEGMENTS AFTER THE LAST REFERENCE SEGMENT (means wrong clustered since silence in the reference)
         if i==len(diarRef)-1:
             valueTmp=copy.deepcopy(diarHyp)
-            for y in diarHyp:     
+            for y in diarHyp:
                 if y['start']>=valueRef['stop']:
                     if modeNoGap == False:
                         actionsSegmentationSegmentDelete.append(copy.deepcopy(y))
@@ -1224,7 +1224,7 @@ def automatonSegmentationAssignment(diarHyp,diarRef,diarUem=None,tolerance=0,mod
     for u in diarFinal__clusterToDeleteAccordingToDiarRef:
         if u in dictionary:
             diarHyp=dropCluster(dictionary[u],diarHyp)
-    
+
     rtn=dict()
     rtn['idxIncremental']=idxIncremental
     rtn['diar']=dict()
@@ -1276,7 +1276,7 @@ def border(diarHyp,diarRef,diarUem=None,tolerance=0,nonSpeechNameRef="NONSPEECHR
     # Fills the wholes to be comparable
     ref_diar=fillDiar(nonSpeechNameRef,diarUem,diarRef)
     hyp_diar=fillDiar(nonSpeechNameHyp,diarUem,diarHyp)
-    
+
     # Creates vectors
     ref_vect = vector(ref_diar,start=uem_start,stop=uem_stop)
     hyp_vect = vector(hyp_diar,start=uem_start,stop=uem_stop)
@@ -1364,7 +1364,7 @@ def borderHumanCorrectionsToDo(diarHyp,diarRef,diarUem=None,verbose=False,nameAl
             if idx==0:
                 prev_idx, prev_ref, prev_hyp, prev_border, prev_l = border_list[i]
 
-                # Checks the first identical ref and hyp 
+                # Checks the first identical ref and hyp
                 if prev_hyp != prev_ref:
                     if prev_ref in output["name_set"]:
                         # Selects name if existing
@@ -1378,27 +1378,27 @@ def borderHumanCorrectionsToDo(diarHyp,diarRef,diarUem=None,verbose=False,nameAl
                         else:
                             border_list[i][2] = prev_ref
                         output["name_set"].add(prev_ref)
-                    
+
                     prev_idx, prev_ref, prev_hyp, prev_border, prev_l = border_list[i]
-                    if verbose: 
+                    if verbose:
                         logging.info(prev_border, prev_idx, prev_l, 'ref=', prev_ref, 'hyp=', hyp, 'new hyp=', prev_hyp, 'cmp=', hyp == prev_ref , 'v=', output["validate"], 'cb=', output["create_boundary"], 'db=', output["delete_boundary"], 'cn=', output["create_name"], 'sn=', output["select_name"])
                 else:
                     # Validates if existing
                     output["validate"] += 1
-                    
-                    if verbose:   
+
+                    if verbose:
                         logging.info(prev_idx, ' ref=', prev_ref, ' hyp=', prev_hyp, ' cmp=', prev_ref==prev_hyp , 'v=', output["validate"], 'cb=', output["create_boundary"], 'db=', output["delete_boundary"], 'cn=', output["create_name"], 'sn=', output["select_name"])
                 if verbose:
                     logging.info('-'*10)
             else:
                 idx, ref, hyp, border, l = border_list[i]
-                if verbose:   
+                if verbose:
                     logging.info(prev_idx, 'vs', idx,';', prev_ref, 'vs', ref, ';', prev_hyp,'vs', hyp)
                 if hyp == ref:
                     # ref A A
                     # hyp A A
                     output["validate"] += 1
-                    if verbose: 
+                    if verbose:
                         logging.info('validate ref : A A / hyp A A')
                 else :
                     if prev_ref == ref:
@@ -1408,7 +1408,7 @@ def borderHumanCorrectionsToDo(diarHyp,diarRef,diarUem=None,verbose=False,nameAl
                         borderRenameFollowing(border_list,i,ref)
                         output["delete_boundary"] += 1
                         output["name_set"].add(ref)
-                        if verbose:   
+                        if verbose:
                             logging.info('delete ref : A A / hyp A B')
                     else:
                         if prev_hyp == hyp:
@@ -1416,7 +1416,7 @@ def borderHumanCorrectionsToDo(diarHyp,diarRef,diarUem=None,verbose=False,nameAl
                             # hyp : A A
                             # create boundary and create/select name
                             output["create_boundary"] += 1
-                            if verbose:   
+                            if verbose:
                                 logging.info('create_boundary ref : A B / hyp A A')
 
                         # ref : A B
@@ -1425,7 +1425,7 @@ def borderHumanCorrectionsToDo(diarHyp,diarRef,diarUem=None,verbose=False,nameAl
                         if ref in output["name_set"]:
                             output["select_name"] += 1
                             border_list[i][2] = ref
-                            if verbose:   
+                            if verbose:
                                 logging.info('select_name ref : A B / hyp A A/C')
                         else:
                             output["create_name"] += 1
@@ -1434,11 +1434,11 @@ def borderHumanCorrectionsToDo(diarHyp,diarRef,diarUem=None,verbose=False,nameAl
                             else:
                                 border_list[i][2]=ref
                             output["name_set"].add(ref)
-                            if verbose:   
+                            if verbose:
                                 logging.info('create_name ref : A B / hyp A A/C', output["name_set"])
 
                 prev_idx, prev_ref, prev_hyp, prev_border, prev_l = border_list[i]
-                if verbose: 
+                if verbose:
                     logging.info(prev_border, prev_idx, prev_l, 'ref=', prev_ref, 'hyp=', hyp, 'new hyp=', prev_hyp, 'cmp=', hyp == prev_ref , 'v=', output["validate"], 'cb=', output["create_boundary"], 'db=', output["delete_boundary"], 'cn=', output["create_name"], 'sn=', output["select_name"], '\n')
     return output
 
@@ -1475,7 +1475,7 @@ def boundariesInTolerance(boundarySegment,segment,tolerance):
 ## WARNING: The boundary matching rests on the nearest distance. In any case, it doesn't take into consideration the labels
 ## tolerance: In centiseconds
 def boundHypToChange(diarHyp,diarRef,diarUem=None,verbose=False,tolerance=25):
-    assert isinstance(verbose,bool) and isinstance(diarHyp,Diar) and isinstance(diarRef,Diar) and ((isinstance(diarUem,Diar) and len(diarOverlapArea(diarUem))==0) or diarUem is None) and len(diarOverlapArea(diarRef))==0 and len(diarOverlapArea(diarHyp))==0  
+    assert isinstance(verbose,bool) and isinstance(diarHyp,Diar) and isinstance(diarRef,Diar) and ((isinstance(diarUem,Diar) and len(diarOverlapArea(diarUem))==0) or diarUem is None) and len(diarOverlapArea(diarRef))==0 and len(diarOverlapArea(diarHyp))==0
     diarHyp=copy.deepcopy(diarHyp)
     diarRef=copy.deepcopy(diarRef)
     if diarUem is not None:
@@ -1509,7 +1509,7 @@ def boundHypToChange(diarHyp,diarRef,diarUem=None,verbose=False,tolerance=25):
                     if i>=y['start'] and i<=y['stop'] and j>=y['start'] and j<=y['stop']:
                         matrixTmp[idxI,idxJ]=matrix[idxI,idxJ]
         matrix=matrixTmp
-           
+
     if verbose:
         print(boundHyp)
         print(boundRef)
@@ -1593,7 +1593,7 @@ def countOccurenceSegment(segment,diar):
             cpt+=1
     return cpt
 
-# Returns a diar object by cutting with a rolling mean in low energy area in order to only have segments with a given max size 
+# Returns a diar object by cutting with a rolling mean in low energy area in order to only have segments with a given max size
 ## winSize, maxSegSize, securityMarginSize: In centiseconds
 ## c0 of cepstrum have to be the energy
 def cutBigSegmentLowEnergy(diar,cepstrum,maxSegSize,securityMarginSize,winSize=100):
@@ -1707,7 +1707,7 @@ def fillDiar(cluster,accordingToDiar,diar):
         diarTmp.append(show=diar[0]['show'], cluster=cluster, start=i['start'], stop=i['stop'])
     diarTmp.pack()
     diarTmp2=copy.deepcopy(diarTmp)
-    for j in diarTmp:        
+    for j in diarTmp:
         for i in diar:
             if Segment.intersection(i,j) is not None:
                 diarTmp2=releaseFramesFromSegment(i,diarTmp2)
@@ -1716,7 +1716,7 @@ def fillDiar(cluster,accordingToDiar,diar):
     out_diar.sort()
     return out_diar
 
-# Returns the first instervention of a cluster in a diar object, None otherwise           
+# Returns the first instervention of a cluster in a diar object, None otherwise
 def firstIntervention(diar,cluster):
     assert isinstance(diar,Diar) and isinstance(cluster,str)
     for i in range(0,len(diar)):
@@ -1767,7 +1767,7 @@ def FRFA(diarHyp,diarRef,diarUem=None,tolerance=25,cluster="fillFRFA"):
 ## WARNING: Doesn't take the labels and a tolerance into consideration
 ## Note: Similar to the automaton methods
 def humanCorrectionsToDo(diarHyp,diarRef,diarUem=None):
-    assert isinstance(diarHyp,Diar) and isinstance(diarRef,Diar) and (isinstance(diarUem,Diar) or diarUem is None) and len(diarOverlapArea(diarRef))==0 and len(diarOverlapArea(diarHyp))==0 
+    assert isinstance(diarHyp,Diar) and isinstance(diarRef,Diar) and (isinstance(diarUem,Diar) or diarUem is None) and len(diarOverlapArea(diarRef))==0 and len(diarOverlapArea(diarHyp))==0
     diarHyp=copy.deepcopy(diarHyp)
     diarRef=copy.deepcopy(diarRef)
     if diarUem is not None:
@@ -1778,7 +1778,7 @@ def humanCorrectionsToDo(diarHyp,diarRef,diarUem=None):
     boundRef=set(diarRef.unique("stop")).union(set(diarRef.unique("start")))
     boundToAdd=boundRef.difference(boundHyp)
     boundToDrop=boundHyp.difference(boundRef)
-    
+
     idxRef=diarRef.features_by_cluster()
     idxHyp=diarHyp.features_by_cluster()
     intervalRef=list()
@@ -1843,7 +1843,7 @@ def humanCorrectionsToDo(diarHyp,diarRef,diarUem=None):
                                              start=y['start'],
                                              stop=y['stop'],
                                              toCluster=dictio[i['cluster']])
-    
+
     for i in diarExcep:
         for y in diarHyp:
             j=copy.deepcopy(y)
@@ -1918,7 +1918,7 @@ def mergeSegment(segment1,segment2,diar):
         stop=segment2['stop']
     segment=copy.deepcopy(segment1)
     segment['start']=start
-    segment['stop']=stop  
+    segment['stop']=stop
     out_diar.append_seg(segment)
     out_diar.sort()
     return [copy.deepcopy(segment),out_diar]
@@ -2106,7 +2106,7 @@ def releaseFramesAccordingToDiarWithToleranceBoundaries(diar,basisDiar=None,basi
         else:
             i['start']-=basisTolerance
             i['stop']+=basisTolerance
-            out_diar=releaseFramesFromSegment(i,out_diar) 
+            out_diar=releaseFramesFromSegment(i,out_diar)
     for i in diarTmp:
         out_diar=releaseFramesFromSegment(i,out_diar)
     return out_diar
@@ -2220,7 +2220,7 @@ def rmOvlpSegments(diar, epsilon):
 
     return diar
 
-# Returns a diar object with safe annotation according to the diarUem parameter 
+# Returns a diar object with safe annotation according to the diarUem parameter
 ## WARNING: Without overlapped segments or speech turn < "withoutSpeechTurn" or the number of followed segments < "segmentFollowed"
 ## withoutSpeechTurn: In centiseconds
 def safeAnnotationDiar(diar,diarUem=None,addNoise=True,segmentFollowed=None,withoutSpeechTurn=100):
@@ -2294,7 +2294,7 @@ def splitSegment(segment,diar,value):
     for i in diar:
         if i['show']==segment['show'] and i['cluster']==segment['cluster'] and i['cluster_type']==segment['cluster_type'] and i['start']==segment['start'] and i['stop']==segment['stop']:
             out_diar.append(show=segment['show'], cluster=segment['cluster'],cluster_type=segment['cluster_type'], start=segment['start'], stop=value)
-            out_diar.append(show=segment['show'], cluster=segment['cluster'],cluster_type=segment['cluster_type'], start=value, stop=segment['stop'])           
+            out_diar.append(show=segment['show'], cluster=segment['cluster'],cluster_type=segment['cluster_type'], start=value, stop=segment['stop'])
         else:
             out_diar.append_seg(i)
     return copy.deepcopy(out_diar)
