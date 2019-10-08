@@ -30,17 +30,19 @@ import logging
 import re
 import numpy
 
+
 def str2str_normalize(name):
     """
     removes accents and replace '_' by '_' the the string speaker
     :param name: the string to nomalize
     :return:
     """
-    name = name.translate(str.maketrans('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ','AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn')).lower()
-    name = name.translate(str.maketrans("'",'_'))
+    name = name.translate(str.maketrans('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ',
+                                        'AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn')).lower()
+    name = name.translate(str.maketrans("'", '_'))
 
-    name = name.translate(str.maketrans('-','_'))
-    return re.sub('_+','_',name)
+    name = name.translate(str.maketrans('-', '_'))
+    return re.sub('_+', '_', name)
 
 
 def path_show_ext(fullpath, shortext=False):
@@ -64,6 +66,7 @@ def path_show_ext(fullpath, shortext=False):
     base = os.path.basename(p)
     return path, base, ext
 
+
 def levenshtein_distance(s1, s2):
     if len(s1) > len(s2):
         s1, s2 = s2, s1
@@ -74,9 +77,7 @@ def levenshtein_distance(s1, s2):
             if char1 == char2:
                 new_distances.append(distances[index1])
             else:
-                new_distances.append(1 + min((distances[index1],
-                                             distances[index1 + 1],
-                                             new_distances[-1])))
+                new_distances.append(1 + min((distances[index1], distances[index1 + 1], new_distances[-1])))
         distances = new_distances
     return distances[-1]
 
@@ -96,73 +97,77 @@ def hms(s):
 
 def get_feature_extractor(audio_filename_structure, type_feature_extractor):
     if type_feature_extractor == 'sid':
-        fe = FeaturesExtractor(audio_filename_structure=audio_filename_structure,
-             feature_filename_structure=None,
-             sampling_frequency=16000,
-             lower_frequency=133.3333,
-             higher_frequency=6855.4976,
-             filter_bank="log",
-             filter_bank_size=40,
-             window_size=0.025,
-             shift=0.01,
-             ceps_number=13,
-             pre_emphasis=0.97,
-             keep_all_features=True,
-             vad='percentil',
-             #vad=None,
-             save_param=["energy", "cep", "vad"]
-            )
+        fe = FeaturesExtractor(
+            audio_filename_structure=audio_filename_structure,
+            feature_filename_structure=None,
+            sampling_frequency=16000,
+            lower_frequency=133.3333,
+            higher_frequency=6855.4976,
+            filter_bank="log",
+            filter_bank_size=40,
+            window_size=0.025,
+            shift=0.01,
+            ceps_number=13,
+            pre_emphasis=0.97,
+            keep_all_features=True,
+            vad='percentil',
+            #vad=None,
+            save_param=["energy", "cep", "vad"]
+        )
     elif type_feature_extractor == 'sid8k':
-        fe = FeaturesExtractor(audio_filename_structure=audio_filename_structure,
-             feature_filename_structure=None,
-             sampling_frequency=8000,
-             lower_frequency=0,
-             higher_frequency=4000,
-             filter_bank="log",
-             filter_bank_size=24,
-             window_size=0.025,
-             shift=0.01,
-             ceps_number=12,
-             pre_emphasis=0.95,
-             keep_all_features=True,
-             #vad='percentil',
-             vad=None,
-             save_param=["energy", "cep", "vad"]
-            )
+        fe = FeaturesExtractor(
+            audio_filename_structure=audio_filename_structure,
+            feature_filename_structure=None,
+            sampling_frequency=8000,
+            lower_frequency=0,
+            higher_frequency=4000,
+            filter_bank="log",
+            filter_bank_size=24,
+            window_size=0.025,
+            shift=0.01,
+            ceps_number=12,
+            pre_emphasis=0.95,
+            keep_all_features=True,
+            #vad='percentil',
+            vad=None,
+            save_param=["energy", "cep", "vad"]
+        )
     elif type_feature_extractor == '8k' or type_feature_extractor == '8kcms'\
             or type_feature_extractor == '8ksns':
-        fe = FeaturesExtractor(audio_filename_structure=audio_filename_structure,
-             feature_filename_structure=None,
-             sampling_frequency=8000,
-             lower_frequency=0,
-             higher_frequency=4000,
-             filter_bank="log",
-             filter_bank_size=24,
-             window_size=0.025,
-             shift=0.01,
-             ceps_number=13,
-             pre_emphasis=0.97,
-             keep_all_features=True,
-             #vad='percentil',
-             vad=None,
-             save_param=["energy", "cep", "vad"]
-            )
+        fe = FeaturesExtractor(
+            audio_filename_structure=audio_filename_structure,
+            feature_filename_structure=None,
+            sampling_frequency=8000,
+            lower_frequency=0,
+            higher_frequency=4000,
+            filter_bank="log",
+            filter_bank_size=24,
+            window_size=0.025,
+            shift=0.01,
+            ceps_number=13,
+            pre_emphasis=0.97,
+            keep_all_features=True,
+            #vad='percentil',
+            vad=None,
+            save_param=["energy", "cep", "vad"]
+        )
     elif type_feature_extractor == 'basic':
-        fe = FeaturesExtractor(audio_filename_structure=audio_filename_structure,
-             feature_filename_structure=None,
-             sampling_frequency=16000,
-             lower_frequency=133.3333,
-             higher_frequency=6855.4976,
-             filter_bank="log",
-             filter_bank_size=40,
-             window_size=0.025,
-             shift=0.01,
-             ceps_number=13,
-             pre_emphasis=0.97,
-             keep_all_features=True,
-             vad=None,
-             save_param=["energy", "cep", "vad"]
-            )
+        fe = FeaturesExtractor(
+            audio_filename_structure=audio_filename_structure,
+            feature_filename_structure=None,
+            sampling_frequency=16000,
+            lower_frequency=133.3333,
+            higher_frequency=6855.4976,
+            filter_bank="log",
+            filter_bank_size=40,
+            window_size=0.025,
+            shift=0.01,
+            ceps_number=13,
+            pre_emphasis=0.97,
+            keep_all_features=True,
+            vad=None,
+            save_param=["energy", "cep", "vad"]
+        )
     else:
         logging.error('in get_feature_server, type_fe not found: ' + type_feature_extractor)
         return None
@@ -172,7 +177,7 @@ def get_feature_extractor(audio_filename_structure, type_feature_extractor):
 def get_feature_server(filename_structure, feature_server_type):
     path, show, ext = path_show_ext(filename_structure)
     feature_filename_structure = None
-    logging.info(path+' ## '+show+' ## '+ext)
+    logging.info(path + ' ## ' + show + ' ## ' + ext)
     if ext.endswith('.h5') or ext.endswith('.hdf5'):
         feature_extractor = None
         feature_filename_structure = filename_structure
@@ -180,72 +185,85 @@ def get_feature_server(filename_structure, feature_server_type):
     else:
         audio_filename_structure = filename_structure
         feature_extractor = get_feature_extractor(audio_filename_structure, type_feature_extractor=feature_server_type)
-    logging.info('-'*20)
+    logging.info('-' * 20)
     logging.info(feature_extractor)
-    logging.info('-'*20)
+    logging.info('-' * 20)
     if feature_server_type == 'basic':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('energy', 'cep'),
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor, feature_filename_structure=feature_filename_structure, dataset_list=('energy', 'cep'), keep_all_features=True
+        )
     elif feature_server_type == 'sns':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('cep'),
-                 delta=True,
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor,
+            feature_filename_structure=feature_filename_structure,
+            dataset_list=('cep'),
+            delta=True,
+            keep_all_features=True
+        )
     elif feature_server_type == 'sns_dnn':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('cep'),
-                 delta=True,
-                 context=(31, 31),
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor,
+            feature_filename_structure=feature_filename_structure,
+            dataset_list=('cep'),
+            delta=True,
+            context=(31, 31),
+            keep_all_features=True
+        )
     elif feature_server_type == 'sid':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('energy', 'cep'),
-                 feat_norm='cmvn_sliding',
-                 delta=True,
-                 double_delta=True,
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor,
+            feature_filename_structure=feature_filename_structure,
+            dataset_list=('energy', 'cep'),
+            feat_norm='cmvn_sliding',
+            delta=True,
+            double_delta=True,
+            keep_all_features=True
+        )
     elif feature_server_type == 'sid8k':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('cep'),
-                 feat_norm='cmvn_sliding',
-                 delta=True,
-                 double_delta=False,
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor,
+            feature_filename_structure=feature_filename_structure,
+            dataset_list=('cep'),
+            feat_norm='cmvn_sliding',
+            delta=True,
+            double_delta=False,
+            keep_all_features=True
+        )
     elif feature_server_type == '8k':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('cep'),
-                 #delta=True,
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor,
+            feature_filename_structure=feature_filename_structure,
+            dataset_list=('cep'),
+            #delta=True,
+            keep_all_features=True
+        )
     elif feature_server_type == '8ksns':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('cep'),
-                 delta=True,
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor,
+            feature_filename_structure=feature_filename_structure,
+            dataset_list=('cep'),
+            delta=True,
+            keep_all_features=True
+        )
     elif feature_server_type == '8kcms':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('cep'),
-                 feat_norm='cms',
-                 #delta=True,
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor,
+            feature_filename_structure=feature_filename_structure,
+            dataset_list=('cep'),
+            feat_norm='cms',
+            #delta=True,
+            keep_all_features=True
+        )
     elif feature_server_type == 'vad':
-        feature_server = FeaturesServer(features_extractor=feature_extractor,
-                 feature_filename_structure=feature_filename_structure,
-                 dataset_list=('energy'),
-                 keep_all_features=True)
+        feature_server = FeaturesServer(
+            features_extractor=feature_extractor, feature_filename_structure=feature_filename_structure, dataset_list=('energy'), keep_all_features=True
+        )
     else:
         logging.error('in get_feature_server, feature_server_type not found: ' + feature_server_type)
         return None
     logging.info(feature_server)
     return feature_server
+
 
 # def get_feature_server(input_dir='./{s}.h5', feature_server_type):
 #     logging.info('get_feature_server type: '+feature_server_type)
@@ -262,7 +280,6 @@ def get_feature_server(filename_structure, feature_server_type):
 #     else:
 #         logging.error('in get_feature_server, feature_server_type not found: ' + feature_server_type)
 #         return None
-
 
 # def save_mfcc(diarization, audio_dir, mfcc_fn, feature_server_type):
 #     fh = h5py.File(mfcc_fn, "w")
@@ -323,30 +340,33 @@ def get_feature_server(filename_structure, feature_server_type):
 #             write_hdf5(mfcc_fn, fh, cep, label=vad)
 #     return diar_out
 
+
 class FeatureServerFake(FeaturesServer):
+
     def __init__(self, cep):
         self.cep = cep
 
     def load(self, show, channel=0, input_feature_filename=None, label=None, start=None, stop=None):
         return self.cep, numpy.ones(self.cep.shape[0], dtype='bool')
 
+
 class FeatureServerCache(FeaturesServer):
+
     def __init__(self, featuresServer):
         self.shows = dict()
         self.featuresServer = featuresServer
 
-
     def load(self, show, channel=0, input_feature_filename=None, label=None, start=None, stop=None):
         key = show
         if label is not None:
-            key += '##'+label
+            key += '##' + label
         #if start is not None:
         #    key += '##'+str(start)+'##'+str(stop)
         #for k in self.shows:
         #    logging.info('key: %s', k)
         if key in self.shows:
             #logging.info('load from mem '+key)
-            cep = self.shows[key][start:stop,:]
+            cep = self.shows[key][start:stop, :]
             return cep, numpy.ones(cep.shape[0], dtype='bool')
         else:
             #logging.info('load from disque %s', key)

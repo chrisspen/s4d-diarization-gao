@@ -6,6 +6,7 @@ class GaussFull:
     """
     Class to model a speaker by a gaussian with full covariance
     """
+
     def __init__(self, name, dim):
         self.logger = logging.getLogger(__name__)
         self.name = name
@@ -13,7 +14,7 @@ class GaussFull:
         self.dim = dim
         self.stat1 = np.zeros(dim)
         self.stat2 = np.zeros((dim, dim))
-        self.cov_log_det = 0;
+        self.cov_log_det = 0
         self.mu = None
         self.mu_dot = np.NAN
         self.cov = None
@@ -25,7 +26,7 @@ class GaussFull:
         :param features: numpy.ndarray
 
         """
-        self.count += features.shape[0]  # add the number of features
+        self.count += features.shape[0] # add the number of features
         self.stat1 += features.sum(axis=0)
         self.stat2 += np.dot(features.T, features)
 
@@ -113,7 +114,3 @@ class GaussFull:
         :return: the constant
         """
         return 0.5 * alpha * (dim + (0.5 * ((dim + 1) * dim)))
-
-
-
-

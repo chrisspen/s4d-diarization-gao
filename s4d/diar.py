@@ -19,7 +19,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with SIDEKIT.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 Diar is a class describing an audio/video segmentation file. A diarization
 contains a list of segments. Where each row is segment composed of n values
@@ -105,25 +104,27 @@ Modules
 -------
 
 """
-
-from sidekit.sidekit_wrappers import *
+import re
 import re as regexp
 import copy
-import re
 import logging
 import os
-from sidekit.bosaris.idmap import IdMap
 import sys
-from six import string_types
+
+from sidekit.sidekit_wrappers import *
+from sidekit.bosaris.idmap import IdMap
+
 from s4d.utils import str2str_normalize
 
+from six import string_types
+
 try:
-    from sortedcontainers import SortedDict as dict
+    from sortedcontainers import SortedDict as dict # pylint: disable=redefined-builtin
 except ImportError:
     pass
 
 
-class Diar():
+class Diar:
     """
     The diarization class.
 
@@ -131,11 +132,10 @@ class Diar():
     :attr cluster_types: a list object
     :attr segments: a list of Segment object
     """
+
     def __init__(self):
         self._attributes = AttributeNames()
-        self._attributes.initialize({'show': 0, 'cluster': 1, 'cluster_type': 2,
-                                  'start': 3, 'stop': 4},
-                                    ['empty', 'empty', 'speaker', 0, 0])
+        self._attributes.initialize({'show': 0, 'cluster': 1, 'cluster_type': 2, 'start': 3, 'stop': 4}, ['empty', 'empty', 'speaker', 0, 0])
         self.cluster_types = ['speaker', 'head']
         self.segments = list()
 
@@ -174,8 +174,8 @@ class Diar():
             for lcluster in _cluster_list:
                 lst = sorted(_uem.intersection(set(_features_index[lcluster])))
                 if len(lst) > 0:
-                    c = lst[0];
-                    diar_tmp.append(show=_show, start=c, stop=c+1, cluster=lcluster)
+                    c = lst[0]
+                    diar_tmp.append(show=_show, start=c, stop=c + 1, cluster=lcluster)
                     l = 0
                     for j in range(1, len(lst)):
                         p = c
@@ -184,7 +184,7 @@ class Diar():
                             l += 1
                         else:
                             diar_tmp[-1]['stop'] += l
-                            diar_tmp.append(show=_show, start=c, stop=c+1, cluster=lcluster)
+                            diar_tmp.append(show=_show, start=c, stop=c + 1, cluster=lcluster)
                             l = 0
                     if l > 0:
                         diar_tmp[-1]['stop'] += l
@@ -194,7 +194,7 @@ class Diar():
         #shows = self.unique('show')
         shows = self.make_index(['show'])
         for show in shows:
-            logging.info('rm overlap show: '+show)
+            logging.info('rm overlap show: %s', show)
             diar_show = shows[show]
             length = diar_show.last_feature_index()
             cluster_list = diar_show.unique('cluster')
@@ -221,17 +221,15 @@ class Diar():
         """
         tmp_diarization = self.copy_structure()
         tmp_diarization.segments = list()
-        if attribute == "length" or attribute == "duration":
-            str = "seg.duration() {:s} {}".format(operator, value)
+        if attribute in ("length", "duration"):
+            s = "seg.duration() {:s} {}".format(operator, value)
         elif isinstance(value, string_types):
-            str = "seg['{:s}'] {:s} '{:s}'".format(attribute, operator, value)
+            s = "seg['{:s}'] {:s} '{:s}'".format(attribute, operator, value)
         else:
-            str = "seg['{:s}'] {:s} {} ".format(attribute, operator, value)
-        # print(ch)
-        logging.debug(str)
+            s = "seg['{:s}'] {:s} {} ".format(attribute, operator, value)
+        logging.debug(s)
         for seg in self.segments:
-            # print(ch, seg.length())
-            if eval(str):
+            if eval(s): # pylint: disable=eval-used
                 tmp_diarization.segments.append(copy.deepcopy(seg))
         return tmp_diarization
 
@@ -244,7 +242,7 @@ class Diar():
 
         """
         for segment in self.segments:
-            if segment[attribute] in old_values or len(old_values) == 0 :
+            if segment[attribute] in old_values or len(old_values) == 0:
                 segment[attribute] = new_value
 
     def _iofi(self, index, attributes, segment):
@@ -272,9 +270,8 @@ class Diar():
                 ldiar.append_seg(segment)
                 index[value] = ldiar
             return index
-        else:
-            # recursion to the level n-1 until attributes is empty
-            self._iofi(index[value], attributes, segment)
+        # recursion to the level n-1 until attributes is empty
+        self._iofi(index[value], attributes, segment)
 
     def make_index(self, attributes):
         """
@@ -306,23 +303,24 @@ class Diar():
         lst = list()
         for seg in self.segments:
             dic[seg[attibute]] = 0
-        for value in dic.keys():
+        for value in dic:
             lst.append(value)
         return lst
 
-    def sort(self, attributes=['show', 'start'], reverse=False):
+    def sort(self, attributes=None, reverse=False):
         """
         Sort the segments
         :param attributes: a list of attribut names
         :param reverse: if true, make a reverse sort
 
         """
+        if attributes is None:
+            attributes = ['show', 'start']
         attributes.reverse()
         for attribute in attributes:
             if attribute not in self._attributes:
                 raise Exception("This attribut don't exits : " + attribute)
-            self.segments = sorted(self.segments, key=lambda x: x[self._attributes[attribute]],
-                                   reverse=reverse)
+            self.segments = sorted(self.segments, key=lambda x: x[self._attributes[attribute]], reverse=reverse)
 
     def clear(self):
         """
@@ -350,11 +348,10 @@ class Diar():
         """
         if attribut not in self._attributes:
             raise Exception("This attribut don't exits : " + attribut)
-        else:
-            i = self._attributes[attribut]
-            for seg in self.segments:
-                del seg[i]
-            self._attributes.delete(attribut)
+        i = self._attributes[attribut]
+        for seg in self.segments:
+            del seg[i]
+        self._attributes.delete(attribut)
 
     def _new_row(self, **kwargs):
         """
@@ -399,17 +396,17 @@ class Diar():
         :param out_diarization: a diarization object
 
         """
-        lMatchAttr=list()
+        lMatchAttr = list()
         for i in self._attributes.names:
             if i in out_diarization._attributes.names:
                 lMatchAttr.append(i)
-        assert len(lMatchAttr)!=0,"No attribute matches"
+        assert len(lMatchAttr) != 0, "No attribute matches"
 
-        lSegments=list()
+        lSegments = list()
         for i in out_diarization:
-            seg=Segment(self._attributes.defaults,self._attributes)
+            seg = Segment(self._attributes.defaults, self._attributes)
             for y in lMatchAttr:
-                seg._set_attr(y,i[y])
+                seg._set_attr(y, i[y])
             lSegments.append(seg)
 
         self.segments += lSegments
@@ -478,14 +475,13 @@ class Diar():
                 for start in idx_self[show][cluster]:
                     if show not in idx:
                         return False
-                    elif cluster not in idx[show]:
+                    if cluster not in idx[show]:
                         return False
-                    elif start not in idx[show][cluster]:
+                    if start not in idx[show][cluster]:
                         return False
-                    else :
-                        l1 = idx[show][cluster][start].segments
-                        l2 = idx_self[show][cluster][start].segments
-                        return all(x in l2 for x in l1)
+                    l1 = idx[show][cluster][start].segments
+                    l2 = idx_self[show][cluster][start].segments
+                    return all(x in l2 for x in l1)
         return True
 
     def __ne__(self, diarization): # real signature unknown
@@ -506,8 +502,7 @@ class Diar():
             line = ''
             for attribute in segment:
                 line += attribute.__repr__() + ', '
-            string += '  row ' + str(index) + ': [' + regexp.sub(', $', '',
-                                                           line) + ']\n'
+            string += '  row ' + str(index) + ': [' + regexp.sub(', $', '', line) + ']\n'
             index += 1
         return '[\n' + string + ']'
 
@@ -520,8 +515,7 @@ class Diar():
         self.segments += diarization.segments
         return self
 
-    def id_map(self, id_attribut='cluster', show_attribut='show',
-               prefix_id_attrubut=None, suffix_show_attribut=None):
+    def id_map(self, id_attribut='cluster', show_attribut='show', prefix_id_attrubut=None, suffix_show_attribut=None):
         """
         Generate a IdMap object for the StatServer
         :param id_attribut: speaker id_attribut attribut
@@ -561,12 +555,11 @@ class Diar():
         :param maximum_length: maximum length of the show
         :return: a dict object (keys are the cluster_list)
         """
-        if show == None:
+        if show is None:
             l = self.unique('show')
             if len(l) > 1:
                 raise Exception('diarization address sevreal shows, set show parameter')
-            else:
-                show = l[0]
+            show = l[0]
         dic = dict()
         for segment in self.segments:
             if show == segment['show']:
@@ -579,7 +572,8 @@ class Diar():
 
                 if cluster not in dic:
                     dic[cluster] = []
-                dic[cluster] += [i for i in range(start, stop)]
+                # dic[cluster] += [i for i in range(start, stop)]
+                dic[cluster] += list(range(start, stop))
         return dic
 
     def features(self, show=None, maximum_length=None):
@@ -593,8 +587,7 @@ class Diar():
             lst = self.unique('show')
             if len(lst) > 1:
                 raise Exception('diarization address sevreal shows, set show parameter')
-            else:
-                show = lst[0]
+            show = lst[0]
         lst = list()
         for segment in self.segments:
             if show == segment['show']:
@@ -603,15 +596,16 @@ class Diar():
                 if maximum_length is not None:
                     start = min(segment['start'], maximum_length)
                     stop = min(segment['stop'], maximum_length)
-                lst += [i for i in range(start, stop)]
+                # lst += [i for i in range(start, stop)]
+                lst += list(range(start, stop))
         return lst
+
     def to_list(self, show=None, uem_start=None, uem_stop=None):
         if show is None:
             lst = self.unique('show')
             if len(lst) > 1:
                 raise Exception('diarization address sevreal shows, set show parameter')
-            else:
-                show = lst[0]
+            show = lst[0]
         if uem_start is None:
             uem_start = 0
         if uem_stop is None:
@@ -626,7 +620,7 @@ class Diar():
                     if lst[i] == '':
                         lst[i] = cluster
                     else:
-                        lst[i] += ' '+cluster
+                        lst[i] += ' ' + cluster
         return lst
 
     def pack(self, epsilon=0, coveringOverlap=False):
@@ -666,8 +660,7 @@ class Diar():
                     while i < len(diar.segments) - 1:
                         l = Segment.gap(diar.segments[i], diar.segments[i + 1]).duration()
                         if l <= epsilon:
-                            diar.segments[i]['stop'] = max(diar.segments[i]['stop'],
-                                                           diar.segments[i + 1]['stop'])
+                            diar.segments[i]['stop'] = max(diar.segments[i]['stop'], diar.segments[i + 1]['stop'])
                             del diar.segments[i + 1]
                         else:
                             i += 1
@@ -694,11 +687,15 @@ class Diar():
         self.sort(['start'])
         i = 0
         if len(self.segments) > 1:
-            self.segments[i]['stop'] = max(self.segments[i]['start'], min(max(self.segments[i + 1]['start'] - (epsilon // 2), 0), self.segments[i]['stop'] + epsilon))
+            self.segments[i]['stop'] = max(
+                self.segments[i]['start'], min(max(self.segments[i + 1]['start'] - (epsilon // 2), 0), self.segments[i]['stop'] + epsilon)
+            )
         i += 1
-        while i < len(self.segments)-1:
+        while i < len(self.segments) - 1:
             self.segments[i]['start'] = max(self.segments[i - 1]['stop'], self.segments[i]['start'] - epsilon, 0)
-            self.segments[i]['stop'] = max(self.segments[i]['start'],min(max(self.segments[i + 1]['start'] - (epsilon // 2), 0), self.segments[i]['stop'] + epsilon))
+            self.segments[i]['stop'] = max(
+                self.segments[i]['start'], min(max(self.segments[i + 1]['start'] - (epsilon // 2), 0), self.segments[i]['stop'] + epsilon)
+            )
             i += 1
 
     def collar(self, epsilon=0, warning=False):
@@ -720,7 +717,7 @@ class Diar():
                 segment['start'] = segment['stop']
                 rm = True
                 if warning:
-                    logging.warning('no more segment: '+str(segment['start']-epsilon))
+                    logging.warning('no more segment: %s', str(segment['start'] - epsilon))
         if rm:
             self.segments = [seg for seg in self.segments if seg.duration() > 0]
 
@@ -768,7 +765,7 @@ class Diar():
             diarization.add_attribut(new_attribut='channel', default='U')
         try:
             for line in fic:
-                line = re.sub('\s+',' ',line)
+                line = re.sub(r'\s+', ' ', line)
                 line = line.strip()
                 # logging.debug(line)
                 if line.startswith('#') or line.startswith(';;'):
@@ -778,10 +775,7 @@ class Diar():
                 if normalize_cluster:
                     name = str2str_normalize(name)
                 # print(show, tmp, start, length, gender, channel, env, speaker)
-                diarization.append(show=show, cluster=name, start=int(start),
-                             stop=int(length) + int(start), env=environment,
-                             channel=channel,
-                             gender=gender)
+                diarization.append(show=show, cluster=name, start=int(start), stop=int(length) + int(start), env=environment, channel=channel, gender=gender)
         except Exception as e:
             logging.error(sys.exc_info()[0])
             # logging.error(line)
@@ -801,7 +795,7 @@ class Diar():
         diarization = Diar()
         try:
             for line in fic:
-                line = re.sub('\s+',' ',line)
+                line = re.sub(r'\s+', ' ', line)
                 line = line.strip()
                 # logging.debug(line)
                 if line.startswith('#') or line.startswith(';;'):
@@ -811,8 +805,7 @@ class Diar():
                 if normalize_cluster:
                     word = str2str_normalize(word)
                 # print(show, tmp, start, length, gender, channel, env, speaker)
-                diarization.append(show=show, cluster=word, start=int(start),
-                             stop=int(length) + int(start))
+                diarization.append(show=show, cluster=word, start=int(start), stop=int(length) + int(start))
         except Exception as e:
             logging.error(sys.exc_info()[0])
             # logging.error(line)
@@ -820,7 +813,7 @@ class Diar():
         return diarization
 
     @classmethod
-    def read_stm(cls,filename, normalize_cluster=False, encoding="ISO-8859-1"):
+    def read_stm(cls, filename, normalize_cluster=False, encoding="ISO-8859-1"):
         """
         Read a segmentation file
         :param filename: the str input filename
@@ -834,7 +827,7 @@ class Diar():
             diarization.add_attribut(new_attribut='gender', default='U')
         try:
             for line in fic:
-                line = re.sub('\s+',' ',line)
+                line = re.sub(r'\s+', ' ', line)
                 line = line.strip()
                 # logging.debug(line)
                 if line.startswith('#') or line.startswith(';;'):
@@ -845,24 +838,21 @@ class Diar():
                 loc = split[2]
                 if normalize_cluster:
                     loc = str2str_normalize(loc)
-                start = int(float(split[3])*100)
-                stop = int(float(split[4])*100)
-                addon = split[5].replace(">", "").replace("<", "").replace(","," ")
-                lineBis = re.sub('\s+',' ',addon)
+                start = int(float(split[3]) * 100)
+                stop = int(float(split[4]) * 100)
+                addon = split[5].replace(">", "").replace("<", "").replace(",", " ")
+                lineBis = re.sub(r'\s+', ' ', addon)
                 lineBis = lineBis.strip()
                 gender = lineBis.split()[2]
                 if normalize_cluster:
                     word = str2str_normalize(word)
                 # print(show, tmp, start, length, gender, channel, env, speaker)
                 if gender == "female":
-                    diarization.append(show=show, cluster=loc, start=start,
-                             stop=stop,gender="F")
+                    diarization.append(show=show, cluster=loc, start=start, stop=stop, gender="F")
                 elif gender == "male":
-                    diarization.append(show=show, cluster=loc, start=start,
-                             stop=stop,gender="M")
+                    diarization.append(show=show, cluster=loc, start=start, stop=stop, gender="M")
                 else:
-                    diarization.append(show=show, cluster=loc, start=start,
-                             stop=stop)
+                    diarization.append(show=show, cluster=loc, start=start, stop=stop)
         except Exception as e:
             logging.error(sys.exc_info()[0])
             logging.error(line)
@@ -885,19 +875,18 @@ class Diar():
             diarization.add_attribut(new_attribut='gender', default='U')
         for line in fic:
             line = line.strip()
-            line = re.sub('\s+',' ',line)
+            line = re.sub(r'\s+', ' ', line)
             logging.debug(line)
             if line.startswith('#') or line.startswith(';;'):
                 continue
             # split line into fields
             show, tmp, start_str, length, t, score, gender, cluster = line.split()
-            start = int(round(float(start_str)*100, 0))
-            stop = start+int(round(float(length)*100, 0))
+            start = int(round(float(start_str) * 100, 0))
+            stop = start + int(round(float(length) * 100, 0))
             if normalize_cluster:
                 cluster = str2str_normalize(cluster)
             # print(show, tmp, start, length, gender, channel, env, speaker)
-            diarization.append(show=show, cluster=cluster, start=start,
-                             stop=stop, gender=gender)
+            diarization.append(show=show, cluster=cluster, start=start, stop=stop, gender=gender)
         fic.close()
         return diarization
 
@@ -915,15 +904,15 @@ class Diar():
         try:
             name = "uem"
             for line in fic:
-                line = re.sub('\s+',' ',line)
+                line = re.sub(r'\s+', ' ', line)
                 line = line.strip()
                 # logging.debug(line)
                 if line.startswith('#') or line.startswith(';;'):
                     continue
                 # split line into fields
                 show, tmp, start_str, stop_str = line.split()
-                start = int(round(float(start_str)*100, 0))
-                stop = int(round(float(stop_str)*100, 0))
+                start = int(round(float(start_str) * 100, 0))
+                stop = int(round(float(stop_str) * 100, 0))
                 # stop = start+int(round(float(length)*100, 0))
                 diarization.append(show=show, cluster=name, start=start, stop=stop)
         except Exception as e:
@@ -946,15 +935,15 @@ class Diar():
             diarization.add_attribut(new_attribut='gender', default='U')
         try:
             for line in fic:
-                line = re.sub('\s+',' ',line)
+                line = re.sub(r'\s+', ' ', line)
                 line = line.strip()
                 if line.startswith('#') or line.startswith(';;'):
                     continue
                 # split line into fields
                 spk, show, tmp0, start_str, length, tmp1, tmp2, cluster, tmp3 = line.split()
                 if spk == "SPEAKER":
-                    start = int(round(float(start_str)*100, 0))
-                    stop = start+int(round(float(length)*100, 0))
+                    start = int(round(float(start_str) * 100, 0))
+                    stop = start + int(round(float(length) * 100, 0))
                     if normalize_cluster:
                         cluster = str2str_normalize(cluster)
                     diarization.append(show=show, cluster=cluster, start=start, stop=stop)
@@ -982,9 +971,11 @@ class Diar():
             channel = 'U'
             if diar._attributes.exist('channel'):
                 channel = segment['channel']
-            lst.append('{:s} 1 {:d} {:d} {:s} {:s} {:s} {:s}\n'.format(
-                segment['show'], segment['start'], segment['stop'] - segment['start'], gender,
-                channel, env, segment['cluster']))
+            lst.append(
+                '{:s} 1 {:d} {:d} {:s} {:s} {:s} {:s}\n'.format(
+                    segment['show'], segment['start'], segment['stop'] - segment['start'], gender, channel, env, segment['cluster']
+                )
+            )
         return lst
 
     @classmethod
@@ -999,7 +990,7 @@ class Diar():
         for segment1 in diarization1:
             for segment2 in diarization2:
                 inter = Segment.intersection(segment1, segment2)
-                if inter is not None :
+                if inter is not None:
                     diarization.append_seg(inter)
         return diarization
 
@@ -1033,13 +1024,12 @@ class Diar():
             if old_show != segment['show']:
                 if fic is not None:
                     fic.close()
-                filename = os.path.join(label_dir, segment['show']
-                                        + label_file_extension)
+                filename = os.path.join(label_dir, segment['show'] + label_file_extension)
                 fic = open(filename, 'w')
                 old_show = segment['show']
-            fic.write('{:d} {:d} {:s}\n'.format(
-                segment['start'], segment['stop'], segment['cluster']))
+            fic.write('{:d} {:d} {:s}\n'.format(segment['start'], segment['stop'], segment['cluster']))
         fic.close()
+
 
 class Segment(list):
     """
@@ -1049,6 +1039,7 @@ class Segment(list):
     :attr _attributes: is the list of attribut names
     :attr data: the data associated to each attribut
     """
+
     def __init__(self, data, attributes):
         """
         Called after the instance has been created (by __new__()), but before it is returned to the caller.
@@ -1085,11 +1076,9 @@ class Segment(list):
         :param index: a int
         :return: the value
         """
-
         if isinstance(index, str):
             return self._get_attr(index)
-        else:
-            return list.__getitem__(self, index)
+        return list.__getitem__(self, index)
 
     def __setitem__(self, index, value):
         """
@@ -1100,8 +1089,7 @@ class Segment(list):
         """
         if isinstance(index, str):
             return self._set_attr(index, value)
-        else:
-            return list.__setitem__(self, index, value)
+        return list.__setitem__(self, index, value)
 
     def __eq__(self, segment): # real signature unknown
         if segment is not None:
@@ -1113,8 +1101,7 @@ class Segment(list):
                 if self[i] != segment[i]:
                     return False
             return True
-        else:
-            return False
+        return False
 
     def __ne__(self, segment): # real signature unknown
         return not self.__eq__(segment)
@@ -1167,6 +1154,7 @@ class Segment(list):
         segment['start'] = segment1['stop']
         segment['stop'] = segment2['start']
         return segment
+
     @classmethod
     def split(cls, segment1, segment2):
         inter = cls.intersection(segment1, segment2)
@@ -1199,8 +1187,7 @@ class Segment(list):
 
         """
         if segment1['show'] != segment2['show']:
-            raise Exception(
-                'not the same show ' + segment1['show'] + ' != ' + segment2['show'])
+            raise Exception('not the same show ' + segment1['show'] + ' != ' + segment2['show'])
         segment = Segment(segment1, segment1._attributes)
         segment['cluster'] += '##' + segment2['cluster']
         segment['start'] = max(segment1['start'], segment2['start'])
@@ -1272,8 +1259,7 @@ class Segment(list):
 
         """
         if segment1['show'] != segment2['show']:
-            raise Exception('not the same show ' +
-                            segment1['show'] + ' != ' + segment2['show'])
+            raise Exception('not the same show ' + segment1['show'] + ' != ' + segment2['show'])
         segment = Segment(segment1, segment1._attributes)
         segment['start'] = min(segment1['start'], segment2['start'])
         segment['stop'] = max(segment1['stop'], segment2['stop'])
@@ -1297,6 +1283,7 @@ class AttributeNames:
     """
     Class AttributeNames defines a list of column names
     """
+
     def __init__(self):
         self.names = dict
         self.defaults = list
@@ -1373,9 +1360,8 @@ class AttributeNames:
         """
         if name in self.names:
             raise Exception('This attribut exits : ')
-        else:
-            self[name] = len(self.defaults)
-            self.defaults.append(default)
+        self[name] = len(self.defaults)
+        self.defaults.append(default)
 
     def delete(self, name):
         """
@@ -1385,13 +1371,12 @@ class AttributeNames:
         """
         if name not in self.names:
             raise Exception("This attribut don't exits : " + name)
-        else:
-            i = self[name]
-            del self.defaults[i]
-            del self.names[name]
-            for k in self.names:
-                if self.names[k] > i:
-                    self.names[k] -= 1
+        i = self[name]
+        del self.defaults[i]
+        del self.names[name]
+        for k in self.names:
+            if self.names[k] > i:
+                self.names[k] -= 1
 
 
 def rolling_window(a, window):
@@ -1417,12 +1402,9 @@ def rolling_window(a, window):
     """
 
     if window < 1:
-        raise (ValueError, "`window` must be at least 1.")
+        raise ValueError("`window` must be at least 1.")
     if window > a.shape[-1]:
-        raise (ValueError, "`window` is too long.")
+        raise ValueError("`window` is too long.")
     shape = a.shape[:-1] + (a.shape[-1] - window + 1, window)
     strides = a.strides + (a.strides[-1],)
     return numpy.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
-
-
-

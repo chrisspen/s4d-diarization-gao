@@ -9,6 +9,7 @@ from s4d.clustering.hac_utils import bic_square_root
 from s4d.clustering.gauss import GaussFull
 from s4d.diar import Diar
 
+
 class HAC_BIC:
     """
     BIC Hierarchical Agglomerative Clustering (HAC) with gaussian models
@@ -39,9 +40,10 @@ class HAC_BIC:
 
 
     """
+
     def __init__(self, cep, table, alpha=1.0, sr=False):
         self.cep = cep
-        self.dim = cep.shape[1];
+        self.dim = cep.shape[1]
         self.alpha = alpha
         self.diar = copy.deepcopy(table)
         self.models = []
@@ -95,11 +97,11 @@ class HAC_BIC:
         """
         v = GaussFull.merge_partial_bic(mi, mj) - mi.partial_bic - mj.partial_bic
         if self.sr:
-            v += - bic_square_root(mi.count, mj.count, self.alpha, self.dim)
-        else :
-            v += - self.cst_bic * np.log(mi.count + mj.count)
+            v += -bic_square_root(mi.count, mj.count, self.alpha, self.dim)
+        else:
+            v += -self.cst_bic * np.log(mi.count + mj.count)
         if isnan(v):
-            logging.warning('BIC is NAN, mi: '+mi.name+' ' + str(mi.count)+' mj: '+mj.name+' ' + str(mj.count))
+            logging.warning('BIC is NAN, mi: ' + mi.name + ' ' + str(mi.count) + ' mj: ' + mj.name + ' ' + str(mj.count))
         return v
 
     def _merge_model(self, mi, mj):
@@ -140,11 +142,9 @@ class HAC_BIC:
         i, j, v = argmin(self.dist, nb)
         self.nb_merge = 0
         while v < 0.0 and nb > 1:
-            self.information(i, j, v, self.models[i].count+self.models[j].count)
+            self.information(i, j, v, self.models[i].count + self.models[j].count)
             self.nb_merge += 1
-            logging.debug('merge: %d c1: %s (%d) c2: %s (%d) dist: %f %d',
-                          self.nb_merge, self.models[i].name, i,
-                          self.models[j].name, j, v, nb)
+            logging.debug('merge: %d c1: %s (%d) c2: %s (%d) dist: %f %d', self.nb_merge, self.models[i].name, i, self.models[j].name, j, v, nb)
             # update merge
             # self.merge[i].append(
             #    [self.nb_merge, self.models[i].speaker, self.models[j].speaker, v])
@@ -166,11 +166,9 @@ class HAC_BIC:
 
         if to_the_end:
             while nb > 1:
-                self.information(i, j, v, self.models[i].count+self.models[j].count)
+                self.information(i, j, v, self.models[i].count + self.models[j].count)
                 self.nb_merge += 1
-                logging.debug('merge: %d c1: %s (%d) c2: %s (%d) dist: %f %d',
-                          self.nb_merge, self.models[i].name, i,
-                          self.models[j].name, j, v, nb)
+                logging.debug('merge: %d c1: %s (%d) c2: %s (%d) dist: %f %d', self.nb_merge, self.models[i].name, i, self.models[j].name, j, v, nb)
                 self.diar.rename('cluster', [self.models[j].name], self.models[i].name)
                 # update model
                 self.models[i] = self._merge_model(self.models[i], self.models[j])
@@ -185,7 +183,7 @@ class HAC_BIC:
         return out_diar
 
 
-def hac_bic(feature_server, diar, threshold, square_root_bic = False):
+def hac_bic(feature_server, diar, threshold, square_root_bic=False):
     shows = diar.make_index(['show'])
     diar_out = Diar()
     for show in shows:

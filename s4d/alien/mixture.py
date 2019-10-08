@@ -27,7 +27,7 @@ def logsum(A, axis=None):
     Asum += Amax.reshape(Asum.shape)
     if axis:
         # Look out for underflow.
-        Asum[np.isnan(Asum)] = - np.Inf
+        Asum[np.isnan(Asum)] = -np.Inf
     return Asum
 
 
@@ -72,10 +72,7 @@ def lmvnpdf(obs, means, covars, cvtype='diag'):
         Array containing the log probabilities of each data point in
         `observation` under each of the C multivariate Gaussian distributions.
     """
-    lmvnpdf_dict = {'spherical': _lmvnpdfspherical,
-                    'tied': _lmvnpdftied,
-                    'diag': _lmvnpdfdiag,
-                    'full': _lmvnpdffull}
+    lmvnpdf_dict = {'spherical': _lmvnpdfspherical, 'tied': _lmvnpdftied, 'diag': _lmvnpdfdiag, 'full': _lmvnpdffull}
     return lmvnpdf_dict[cvtype](obs, means, covars)
 
 
@@ -323,8 +320,7 @@ class GMM(BaseEstimator):
             observation
         """
         obs = np.asanyarray(obs)
-        lpr = (lmvnpdf(obs, self._means, self._covars, self._cvtype)
-               + self._log_weights)
+        lpr = (lmvnpdf(obs, self._means, self._covars, self._cvtype) + self._log_weights)
         logprob = logsum(lpr, axis=1)
         posteriors = np.exp(lpr - logprob[:, np.newaxis])
         return logprob, posteriors
@@ -427,12 +423,10 @@ class GMM(BaseEstimator):
                     cv = self._covars
                 else:
                     cv = self._covars[comp]
-                obs[comp_in_obs] = sample_gaussian(
-                    self._means[comp], cv, self._cvtype, num_comp_in_obs).T
+                obs[comp_in_obs] = sample_gaussian(self._means[comp], cv, self._cvtype, num_comp_in_obs).T
         return obs
 
-    def fit(self, X, n_iter=10, min_covar=1e-3, thresh=1e-2, params='wmc',
-            init_params='wmc'):
+    def fit(self, X, n_iter=10, min_covar=1e-3, thresh=1e-2, params='wmc', init_params='wmc'):
         """Estimate model parameters with the expectation-maximization
         algorithm.
 
@@ -469,16 +463,14 @@ class GMM(BaseEstimator):
         X = np.asanyarray(X)
 
         if hasattr(self, 'n_features') and self.n_features != X.shape[1]:
-            raise ValueError('Unexpected number of dimensions, got %s but '
-                             'expected %s' % (X.shape[1], self.n_features))
+            raise ValueError('Unexpected number of dimensions, got %s but ' 'expected %s' % (X.shape[1], self.n_features))
 
         self.n_features = X.shape[1]
 
         if 'm' in init_params:
-            self._means = cluster.KMeans(
-                k=self._n_states).fit(X).cluster_centers_
+            self._means = cluster.KMeans(k=self._n_states).fit(X).cluster_centers_
         elif not hasattr(self, 'means'):
-                self._means = np.zeros((self.n_states, self.n_features))
+            self._means = np.zeros((self.n_states, self.n_features))
 
         if 'w' in init_params or not hasattr(self, 'weights'):
             self.weights = np.tile(1.0 / self._n_states, self._n_states)
@@ -487,11 +479,9 @@ class GMM(BaseEstimator):
             cv = np.cov(X.T)
             if not cv.shape:
                 cv.shape = (1, 1)
-            self._covars = _distribute_covar_matrix_to_match_cvtype(
-                cv, self._cvtype, self._n_states)
+            self._covars = _distribute_covar_matrix_to_match_cvtype(cv, self._cvtype, self._n_states)
         elif not hasattr(self, 'covars'):
-                self.covars = _distribute_covar_matrix_to_match_cvtype(
-                    np.eye(self.n_features), self.cvtype, self.n_states)
+            self.covars = _distribute_covar_matrix_to_match_cvtype(np.eye(self.n_features), self.cvtype, self.n_states)
 
         # EM algorithm
         logprob = []
@@ -523,8 +513,7 @@ class GMM(BaseEstimator):
             self._means = avg_obs * norm
         if 'c' in params:
             covar_mstep_func = _covar_mstep_funcs[self._cvtype]
-            self._covars = covar_mstep_func(self, X, posteriors,
-                                            avg_obs, norm, min_covar)
+            self._covars = covar_mstep_func(self, X, posteriors, avg_obs, norm, min_covar)
 
         return w
 
@@ -539,10 +528,10 @@ def _lmvnpdfdiag(obs, means=0.0, covars=1.0):
     # (x-y).T A (x-y) = x.T A x - 2x.T A y + y.T A y
     #lpr = -0.5 * (numpy.tile((numpy.sum((means**2) / covars, 1)
     #                  + numpy.sum(numpy.log(covars), 1))[numpy.newaxis,:], (n_obs,1))
-    lpr = -0.5 * (n_dim * np.log(2 * np.pi) + np.sum(np.log(covars), 1)
-                  + np.sum((means ** 2) / covars, 1)
-                  - 2 * np.dot(obs, (means / covars).T)
-                  + np.dot(obs ** 2, (1.0 / covars).T))
+    lpr = -0.5 * (
+        n_dim * np.log(2 * np.pi) + np.sum(np.log(covars), 1) + np.sum((means**2) / covars, 1) - 2 * np.dot(obs, (means / covars).T) +
+        np.dot(obs**2, (1.0 / covars).T)
+    )
     return lpr
 
 
@@ -558,10 +547,10 @@ def _lmvnpdftied(obs, means, covars):
     n_obs, n_dim = obs.shape
     # (x-y).T A (x-y) = x.T A x - 2x.T A y + y.T A y
     icv = linalg.pinv(covars)
-    lpr = -0.5 * (n_dim * np.log(2 * np.pi) + np.log(linalg.det(covars))
-                  + np.sum(obs * np.dot(obs, icv), 1)[:, np.newaxis]
-                  - 2 * np.dot(np.dot(obs, icv), means.T)
-                  + np.sum(means * np.dot(means, icv), 1))
+    lpr = -0.5 * (
+        n_dim * np.log(2 * np.pi) + np.log(linalg.det(covars)) + np.sum(obs * np.dot(obs, icv), 1)[:, np.newaxis] - 2 * np.dot(np.dot(obs, icv), means.T) +
+        np.sum(means * np.dot(means, icv), 1)
+    )
     return lpr
 
 
@@ -600,10 +589,8 @@ def _validate_covars(covars, cvtype, nmix, n_dim):
     elif cvtype == 'tied':
         if covars.shape != (n_dim, n_dim):
             raise ValueError("'tied' covars must have shape (n_dim, n_dim)")
-        elif (not np.allclose(covars, covars.T)
-              or np.any(linalg.eigvalsh(covars) <= 0)):
-            raise ValueError("'tied' covars must be symmetric, "
-                             "positive-definite")
+        elif (not np.allclose(covars, covars.T) or np.any(linalg.eigvalsh(covars) <= 0)):
+            raise ValueError("'tied' covars must be symmetric, " "positive-definite")
     elif cvtype == 'diag':
         if covars.shape != (nmix, n_dim):
             raise ValueError("'diag' covars must have shape (nmix, n_dim)")
@@ -611,13 +598,10 @@ def _validate_covars(covars, cvtype, nmix, n_dim):
             raise ValueError("'diag' covars must be non-negative")
     elif cvtype == 'full':
         if covars.shape != (nmix, n_dim, n_dim):
-            raise ValueError("'full' covars must have shape "
-                             "(nmix, n_dim, n_dim)")
+            raise ValueError("'full' covars must have shape " "(nmix, n_dim, n_dim)")
         for n, cv in enumerate(covars):
-            if (not np.allclose(cv, cv.T)
-                or np.any(linalg.eigvalsh(cv) <= 0)):
-                raise ValueError("component %d of 'full' covars must be "
-                                 "symmetric, positive-definite" % n)
+            if (not np.allclose(cv, cv.T) or np.any(linalg.eigvalsh(cv) <= 0)):
+                raise ValueError("component %d of 'full' covars must be " "symmetric, positive-definite" % n)
 
 
 def _distribute_covar_matrix_to_match_cvtype(tiedcv, cvtype, n_states):
@@ -630,8 +614,7 @@ def _distribute_covar_matrix_to_match_cvtype(tiedcv, cvtype, n_states):
     elif cvtype == 'full':
         cv = np.tile(tiedcv, (n_states, 1, 1))
     else:
-        raise (ValueError,
-               "cvtype must be one of 'spherical', 'tied', 'diag', 'full'")
+        raise (ValueError, "cvtype must be one of 'spherical', 'tied', 'diag', 'full'")
     return cv
 
 
@@ -645,7 +628,7 @@ def _covar_mstep_diag(gmm, obs, posteriors, avg_obs, norm, min_covar):
     # But everything here is a row vector, so all of the
     # above needs to be transposed.
     avg_obs2 = np.dot(posteriors.T, obs * obs) * norm
-    avg_means2 = gmm._means ** 2
+    avg_means2 = gmm._means**2
     avg_obs_means = gmm._means * avg_obs * norm
     return avg_obs2 - 2 * avg_obs_means + avg_means2 + min_covar
 
@@ -662,8 +645,7 @@ def _covar_mstep_full(gmm, obs, posteriors, avg_obs, norm, min_covar):
         post = posteriors[:, c]
         avg_cv = np.dot(post * obs.T, obs) / post.sum()
         mu = gmm._means[c][np.newaxis]
-        cv[c] = (avg_cv - np.dot(mu.T, mu)
-                 + min_covar * np.eye(gmm.n_features))
+        cv[c] = (avg_cv - np.dot(mu.T, mu) + min_covar * np.eye(gmm.n_features))
     return cv
 
 
@@ -688,10 +670,7 @@ def _covar_mstep_slow(gmm, obs, posteriors, avg_obs, norm, min_covar):
         avg_obs2 = np.zeros((gmm.n_features, gmm.n_features))
         for t, o in enumerate(obs):
             avg_obs2 += posteriors[t, c] * np.outer(o, o)
-        cv = (avg_obs2 / w[c]
-              - 2 * np.outer(avg_obs[c] / w[c], mu)
-              + np.outer(mu, mu)
-              + min_covar * np.eye(gmm.n_features))
+        cv = (avg_obs2 / w[c] - 2 * np.outer(avg_obs[c] / w[c], mu) + np.outer(mu, mu) + min_covar * np.eye(gmm.n_features))
         if gmm.cvtype == 'spherical':
             covars[c] = np.diag(cv).mean()
         elif gmm.cvtype == 'diag':
@@ -703,9 +682,10 @@ def _covar_mstep_slow(gmm, obs, posteriors, avg_obs, norm, min_covar):
     return covars
 
 
-_covar_mstep_funcs = {'spherical': _covar_mstep_spherical,
-                      'diag': _covar_mstep_diag,
-                      #'tied': _covar_mstep_tied,
-                      'full': _covar_mstep_full,
-                      'tied': _covar_mstep_slow,
-                      }
+_covar_mstep_funcs = {
+    'spherical': _covar_mstep_spherical,
+    'diag': _covar_mstep_diag,
+    #'tied': _covar_mstep_tied,
+    'full': _covar_mstep_full,
+    'tied': _covar_mstep_slow,
+}

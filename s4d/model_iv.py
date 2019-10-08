@@ -25,7 +25,9 @@ from sidekit.sidekit_io import *
 import copy
 import numpy as np
 
+
 class ModelIV:
+
     def __init__(self, model_filename=None, nb_thread=1):
         self.ubm = None
         self.tv = None
@@ -170,10 +172,11 @@ class ModelIV:
             for seg_idx in range(model_idx, enroll_copy.segset.shape[0]):
                 s1 = tmp1[seg_idx, :].dot(enroll_tmp[:, seg_idx])
                 s3 = tmp2[seg_idx, :].dot(mod_plus_test_seg[:, seg_idx])
-                scores.scoremat[model_idx, seg_idx] = (s3 - s1 - s2)/2. + constant
-                scores.scoremat[seg_idx, model_idx] = (s3 - s1 - s2)/2. + constant
+                scores.scoremat[model_idx, seg_idx] = (s3 - s1 - s2) / 2. + constant
+                scores.scoremat[seg_idx, model_idx] = (s3 - s1 - s2) / 2. + constant
         self.scores = scores
         return scores
+
 
 #def plda_scores_from_diar(model_fn, feature_server, diar, idmap, return_model=False):
 #    model_iv = ModelIV(model_filename=model_fn, feature_server=feature_server, diarization=diar, idmap=idmap)
@@ -186,8 +189,8 @@ class ModelIV:
 
 #def cosine_scores_from_diar(model_fn, feature_server, diar, return_model=False):
 #    model_iv = ModelIV(model_filename=model_fn, feature_server=feature_server, diarization=diar)
-    #if vad:
-    #model_iv.vad()
+#if vad:
+#model_iv.vad()
 
 #    model_iv.train(normalization=False)
 #    scores = model_iv.score_cosine()

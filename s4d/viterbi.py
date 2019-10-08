@@ -23,12 +23,13 @@
 __author__ = 'meignier'
 
 import logging
+import copy
+
 from sidekit import Mixture, StatServer, FeaturesServer
-from sidekit.mixture import sum_log_probabilities
+# from sidekit.mixture import sum_log_probabilities
 import numpy
 from s4d.diar import Diar
 from s4d.utils import FeatureServerFake
-import copy
 
 
 class Viterbi:
@@ -37,8 +38,11 @@ class Viterbi:
     """
     eps = 1.0e-200
 
-    def __init__(self, cep, diarization, exit_penalties=[0],
-                 loop_penalties=[0]):
+    def __init__(self, cep, diarization, exit_penalties=None, loop_penalties=None):
+        if exit_penalties is None:
+            exit_penalties = [0]
+        if loop_penalties is None:
+            loop_penalties = [0]
         self.cep = cep
         self.diarization = diarization
         shows = self.diarization.unique('show')
@@ -122,8 +126,7 @@ class Viterbi:
         iterations[idx] = max_it
 
         self.mixtures = list()
-        cluster_features = self.diarization.features_by_cluster(
-            maximum_length=self.nb_features)
+        cluster_features = self.diarization.features_by_cluster(maximum_length=self.nb_features)
         new_cluster_list = list()
         self.names = list()
         for i in range(0, self.nb_clusters):
@@ -138,8 +141,7 @@ class Viterbi:
                 mixture = init[i]
                 if mixture.name != cluster:
                     logging.error("!!! name don't match %s != %s", mixture.name, cluster)
-                llk = mixture.EM_no_init(FeatureServerFake(data), [self.show], max_iteration=5,  llk_gain=0.01, num_thread=1)
-
+                llk = mixture.EM_no_init(FeatureServerFake(data), [self.show], max_iteration=5, llk_gain=0.01, num_thread=1)
 
             #llk = m.EM_uniform(FeatureServerFake(data), [self.show], distrib_nb=distrib_nb, llk_gain=0.01, num_thread=1)
             sum_llk = sum(llk)
@@ -148,22 +150,19 @@ class Viterbi:
                 self.names.append(self.mixtures[i].name)
                 new_cluster_list.append(cluster)
             else:
-                logging.warning('bad model, remove it: ' + cluster + ' '+ str(llk)+ ' nb features: '+str(len(index)))
+                logging.warning('bad model, remove it: %s %s nb features: %s', cluster, str(llk), str(len(index)))
         self.cluster_list = new_cluster_list
         self.nb_clusters = len(self.cluster_list)
         self._init_transition()
 
     def _init_transition(self):
-        self.transition_probabilities = numpy.full((self.nb_clusters, self.nb_clusters),
-                                                   self.exit_penalties[-1], dtype=numpy.int)
+        self.transition_probabilities = numpy.full((self.nb_clusters, self.nb_clusters), self.exit_penalties[-1], dtype=numpy.int)
         for i in range(0, self.nb_clusters):
-            self.transition_probabilities[i, i] = self.loop_penalties[
-                min(i, len(self.loop_penalties) - 1)]
+            self.transition_probabilities[i, i] = self.loop_penalties[min(i, len(self.loop_penalties) - 1)]
             if i < len(self.exit_penalties) - 1:
                 for j in range(0, self.nb_clusters):
                     if i != j:
-                        self.transition_probabilities[i, j] = self.exit_penalties[
-                            min(i, len(self.exit_penalties) - 1)]
+                        self.transition_probabilities[i, j] = self.exit_penalties[min(i, len(self.exit_penalties) - 1)]
 
     def emission(self):
         """
@@ -176,9 +175,8 @@ class Viterbi:
             lp = self.mixtures[i].compute_log_posterior_probabilities(self.cep)
             #self.observation[:, i] = numpy.log(numpy.sum(numpy.exp(lp), axis=1))
             pp_max = numpy.max(lp, axis=1)
-            self.observation[:, i]  = pp_max + numpy.log(numpy.sum(numpy.exp((lp.transpose() - pp_max).transpose()), axis=1))
+            self.observation[:, i] = pp_max + numpy.log(numpy.sum(numpy.exp((lp.transpose() - pp_max).transpose()), axis=1))
             #logging.info("--> %f %f", numpy.mean(self.observation[:, i]), numpy.mean(ll))
-
 
         #     finite = numpy.logical_not(numpy.isfinite(self.observation[:, i]))
         #     cpt = numpy.count_nonzero(finite)
@@ -215,26 +213,23 @@ class Viterbi:
 
         for row in table:
             start = row['start']
-            stop = min(row['stop'], self.nb_features-1)
+            stop = min(row['stop'], self.nb_features - 1)
             logging.debug('perform from %d to %d', start, stop)
 
-            for t in range(start, stop+1):
+            for t in range(start, stop + 1):
                 tmp = self.observation[t - 1, :] + self.transition_probabilities
                 self.observation[t, :] += numpy.max(tmp, axis=1)
                 path[t, :] = numpy.argmax(tmp, axis=1)
 
             max_pos = numpy.argmax(self.observation[stop, :])
-            out_diarization.append(show=self.show, start=stop - 1, stop=stop,
-                             cluster=self.cluster_list[max_pos])
+            out_diarization.append(show=self.show, start=stop - 1, stop=stop, cluster=self.cluster_list[max_pos])
             for t in range(stop - 1, start, -1):
                 max_pos = path[t, max_pos]
                 cluster = self.cluster_list[max_pos]
-                if (out_diarization[-1]['start'] == t) and (
-                    out_diarization[-1]['cluster'] == cluster):
+                if (out_diarization[-1]['start'] == t) and (out_diarization[-1]['cluster'] == cluster):
                     out_diarization[-1]['start'] -= 1
                 else:
-                    out_diarization.append(show=self.show, start=t - 1, stop=t,
-                                     cluster=cluster)
+                    out_diarization.append(show=self.show, start=t - 1, stop=t, cluster=cluster)
         out_diarization.sort()
         # self.observation = None
         return out_diarization
@@ -242,7 +237,7 @@ class Viterbi:
 
 def viterbi_decoding(cep, diarization, penalty):
     init_diarization = copy.deepcopy(diarization)
-    if len(init_diarization) <=1:
+    if len(init_diarization) <= 1:
         return init_diarization
     for seg in init_diarization:
         seg['cluster'] = 'init'
@@ -256,9 +251,15 @@ def viterbi_decoding(cep, diarization, penalty):
 class ViterbiMap(Viterbi):
     eps = 1.0e-200
 
-    def __init__(self, featureServer, diarization, ubm, exit_penalties=[0],
-                 loop_penalties=[0], alpha=0.9, linear=False):
+    def __init__(self, featureServer, diarization, ubm, exit_penalties=None, loop_penalties=None, alpha=0.9, linear=False):
+        # pylint: disable=super-init-not-called
         assert isinstance(featureServer, FeaturesServer), 'First parameter should be a FeatureServer'
+
+        if exit_penalties is None:
+            exit_penalties = [0]
+
+        if loop_penalties is None:
+            loop_penalties = [0]
 
         self.featureServer = featureServer
         self.ubm = ubm
@@ -283,15 +284,15 @@ class ViterbiMap(Viterbi):
         self.loop_penalties = loop_penalties
 
     def train(self):
-            idmap = self.diarization.id_map()
-            stat=StatServer(idmap, self.ubm)
-            stat.accumulate_stat(ubm=self.ubm, feature_server=self.featureServer, seg_indices=range(stat.segset.shape[0]), num_thread=1)
-            stat = stat.sum_stat_per_model()[0]
-            self.mixtures = stat.adapt_mean_MAP(self.ubm, self.alpha, linear=self.linear)
-            self.names = self.mixtures.modelset
-            #print(self.names)
-            #print(self.mixtures.stat1[:, 0:24])
-            self._init_transition()
+        idmap = self.diarization.id_map()
+        stat = StatServer(idmap, self.ubm)
+        stat.accumulate_stat(ubm=self.ubm, feature_server=self.featureServer, seg_indices=range(stat.segset.shape[0]), num_thread=1)
+        stat = stat.sum_stat_per_model()[0]
+        self.mixtures = stat.adapt_mean_MAP(self.ubm, self.alpha, linear=self.linear)
+        self.names = self.mixtures.modelset
+        #print(self.names)
+        #print(self.mixtures.stat1[:, 0:24])
+        self._init_transition()
 
     def emission(self, ubm=False):
         self.observation = numpy.zeros((self.nb_features, self.nb_clusters))

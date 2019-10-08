@@ -25,7 +25,8 @@ class DER:
     :attr not_assigned: a list of hypothesis cluster_list not associated to a reference cluster
 
     """
-    def __init__(self, hyp_diarization, ref_diarization, uem_diarization = None, collar=0, no_overlap=False):
+
+    def __init__(self, hyp_diarization, ref_diarization, uem_diarization=None, collar=0, no_overlap=False):
         """
 
         :param hyp_diarization: a hypothesis Diar object
@@ -61,13 +62,13 @@ class DER:
         if collar > 0:
             rem = list()
             for row in ref:
-                rem += [i for i in range(row['start']-collar, row['start']+collar)]
-                rem += [i for i in range(row['stop']-collar, row['stop']+collar)]
+                rem += [i for i in range(row['start'] - collar, row['start'] + collar)]
+                rem += [i for i in range(row['stop'] - collar, row['stop'] + collar)]
             self.uem_set_collar = self.uem_set - set(rem)
         else:
             self.uem_set_collar = self.uem_set
 
-        self.length = max(self.uem_set_collar)+1
+        self.length = max(self.uem_set_collar) + 1
         self.ref_cluster_list = ref.unique('cluster')
         ref_idx = ref.features_by_cluster()
         self.ref_mat = self._to_bool(ref_idx, self.ref_cluster_list, self.uem_set_collar)
@@ -76,7 +77,7 @@ class DER:
             sum = np.sum(self.ref_mat, axis=0)
             idx = np.squeeze(np.asarray(np.argwhere(sum == 1))).tolist()
             self.uem_set_collar = self.uem_set & set(idx)
-            self.length = max(self.uem_set_collar)+1
+            self.length = max(self.uem_set_collar) + 1
             self.ref_mat = self._to_bool(ref_idx, self.ref_cluster_list, self.uem_set_collar)
 
         hyp = copy.deepcopy(hyp_diarization)
@@ -131,16 +132,16 @@ class DER:
         :return: a str
         """
         mr = mh = 0
-        for ch in self.ref_cluster_list+['reference']:
+        for ch in self.ref_cluster_list + ['reference']:
             if mr < len(ch):
                 mr = len(ch)
-        for ch in self.hyp_cluster_list+['hypothesis']:
+        for ch in self.hyp_cluster_list + ['hypothesis']:
             if mh < len(ch):
                 mh = len(ch)
 
-        f = '{:'+str(mr)+'} {:'+str(mh)+'} {:>9}\n'
+        f = '{:' + str(mr) + '} {:' + str(mh) + '} {:>9}\n'
         line = f.format('reference', 'hypothesis', 'conf')
-        f = '{:'+str(mr)+'} {:'+str(mh)+'} {:>8.2f}s\n'
+        f = '{:' + str(mr) + '} {:' + str(mh) + '} {:>8.2f}s\n'
         nh = len(self.hyp_cluster_list)
         nr = len(self.ref_cluster_list)
 
@@ -149,7 +150,7 @@ class DER:
                 if self.conf[i, j] > 0 or all_value == True:
                     r = self.ref_cluster_list[i]
                     h = self.hyp_cluster_list[j]
-                    s = self.conf[i, j]/100
+                    s = self.conf[i, j] / 100
                     line += f.format(r, h, s)
         return line
 
@@ -161,9 +162,9 @@ class DER:
         and value equal to the confusion score
         :return: a list object containing the hypothesis cluster_list that are not assigned
         """
-        self.assigned = linear_assignment(-1.0*self.conf)
+        self.assigned = linear_assignment(-1.0 * self.conf)
         name_assigned = dict()
-        self.match = 0;
+        self.match = 0
         self.not_assigned = copy.deepcopy(self.hyp_cluster_list)
 
         for i in range(self.assigned.shape[0]):
@@ -187,7 +188,7 @@ class DER:
         (reference cluster, hypothesis cluster) and value equal to the confusion
         score
         """
-        i = 0;
+        i = 0
         self.assigned = np.ones((len(self.ref_cluster_list), 2)) * -1
 
         for key in name_assigned:
@@ -208,21 +209,21 @@ class DER:
             return "Assignment is not set"
         mr = mh = 0
 
-        for ch in self.ref_cluster_list+['reference']:
+        for ch in self.ref_cluster_list + ['reference']:
             if mr < len(ch):
                 mr = len(ch)
-        for ch in self.hyp_cluster_list+['hypothesis']:
+        for ch in self.hyp_cluster_list + ['hypothesis']:
             if mh < len(ch):
                 mh = len(ch)
-        f = '{:'+str(mr)+'} {:'+str(mh)+'} {:>9}\n'
+        f = '{:' + str(mr) + '} {:' + str(mh) + '} {:>9}\n'
         line = f.format('reference', 'hypothesis', 'matching')
-        f = '{:'+str(mr)+'} {:'+str(mh)+'} {:>8.2f}s {:d} {:d}\n'
+        f = '{:' + str(mr) + '} {:' + str(mh) + '} {:>8.2f}s {:d} {:d}\n'
 
         for i in range(self.assigned.shape[0]):
             if self.assigned[i, 0] >= 0:
                 r = self.ref_cluster_list[self.assigned[i, 0]]
                 h = self.hyp_cluster_list[self.assigned[i, 1]]
-                s = self.conf[self.assigned[i, 0], self.assigned[i, 1]]/100
+                s = self.conf[self.assigned[i, 0], self.assigned[i, 1]] / 100
                 line += f.format(r, h, s, self.assigned[i, 0], self.assigned[i, 1])
 
         r = 'None'
@@ -290,7 +291,9 @@ class DER:
         res.compute_rate()
         return res
 
+
 class DER_coll(DER):
+
     def __init__(self, ref_cluster_list, hyp_cluster_list):
         self.ref_cluster_list = ref_cluster_list
         self.hyp_cluster_list = hyp_cluster_list
@@ -307,10 +310,12 @@ class DER_coll(DER):
                     jg = self.hyp_cluster_list.index(der.hyp_cluster_list[j])
                     self.conf[ig, jg] += v
 
+
 class DER_result:
     """
     Class to store the s4d error results
     """
+
     def __init__(self, show):
         """
 
@@ -418,9 +423,9 @@ class DER_result:
             name = ''
         line = [name, 'rate']
         if speech:
-            line += [self.sns_fa, self.sns_miss, self.sns_fa+self.sns_miss]
+            line += [self.sns_fa, self.sns_miss, self.sns_fa + self.sns_miss]
         if overlap:
-            line += [self.overlap_fa, self.overlap_miss, self.overlap_fa+self.overlap_miss]
+            line += [self.overlap_fa, self.overlap_miss, self.overlap_fa + self.overlap_miss]
         if speaker:
             line += [self.spk_fa, self.spk_miss, self.spk_conf, self.get_der()]
         return [line]
@@ -437,11 +442,11 @@ class DER_result:
             name = ''
         line = [name, 'time']
         if speech:
-            line += [self.sns_fa_time/100, self.sns_miss_time/100, self.uem_with_collar_time/100]
+            line += [self.sns_fa_time / 100, self.sns_miss_time / 100, self.uem_with_collar_time / 100]
         if overlap:
-            line += [self.overlap_fa_time/100, self.overlap_miss_time/100, self.overlap_time/100]
+            line += [self.overlap_fa_time / 100, self.overlap_miss_time / 100, self.overlap_time / 100]
         if speaker:
-            line += [self.spk_fa_time/100, self.spk_miss_time/100, self.spk_conf_time/100, self.spk_time/100]
+            line += [self.spk_fa_time / 100, self.spk_miss_time / 100, self.spk_conf_time / 100, self.spk_time / 100]
         return [line]
 
     def get_table(self, name=None, time=True, rate=True, overlap=False):
@@ -461,11 +466,11 @@ class DER_result:
         #    lst += self.overlap(speaker=speaker)
         #    add_name = True
         #else:
-            #lst += self.overlap(speaker=None)
+        #lst += self.overlap(speaker=None)
         return lst
 
     def get_der(self):
-        return self.spk_fa+self.spk_miss+self.spk_conf
+        return self.spk_fa + self.spk_miss + self.spk_conf
 
 
 def get_header():

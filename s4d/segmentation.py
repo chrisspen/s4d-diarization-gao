@@ -10,6 +10,7 @@ from s4d.clustering.hac_utils import bic_square_root
 import copy
 import scipy
 
+
 def sanity_check(cep, show, cluster='init'):
     """
     Removes equal MFCC of *cep* and return a diarization.
@@ -68,7 +69,7 @@ def adjust(cep, diarization):
 
     smooth = np.convolve(cep[:, energy_index], box, mode='same')
     adj_table = _adjust(smooth, diarization)
-    return _split_e(smooth, adj_table, 30*100)
+    return _split_e(smooth, adj_table, 30 * 100)
 
 
 def _adjust(smooth, diarization, window_size=25):
@@ -142,7 +143,6 @@ def _split_seg(smooth, segment, min_seg_size, split_size, lst):
         lst.append(copy.deepcopy(segment))
 
 
-
 def div_gauss(cep, show='empty', win=250, shift=0):
     """
     Segmentation based on gaussian divergence.
@@ -173,10 +173,10 @@ def div_gauss(cep, show='empty', win=250, shift=0):
 
     length = cep.shape[0]
     # start and stop of the rolling windows A
-    start_a = win - 1  # end of NAN
+    start_a = win - 1 # end of NAN
     stop_a = length - win
     # start and stop of the rolling windows B
-    start_b = win + win - 1  # end of nan + delay
+    start_b = win + win - 1 # end of nan + delay
     stop_b = length
 
     # put features in a Pandas DataFrame
@@ -190,12 +190,10 @@ def div_gauss(cep, show='empty', win=250, shift=0):
     std = r.std().values
 
     # compute GD scores using 2 windows A and B
-    dist = (np.square(mean[start_a:stop_a, :] - mean[start_b:stop_b, :]) / (
-        std[start_a:stop_a, :] * std[start_b:stop_b, :])).sum(axis=1)
+    dist = (np.square(mean[start_a:stop_a, :] - mean[start_b:stop_b, :]) / (std[start_a:stop_a, :] * std[start_b:stop_b, :])).sum(axis=1)
 
     # replace missing value to match cep size
-    dist_pad = np.lib.pad(dist, (win - 1, win), 'constant',
-                          constant_values=(dist[0], dist[-1]))
+    dist_pad = np.lib.pad(dist, (win - 1, win), 'constant', constant_values=(dist[0], dist[-1]))
 
     # remove non-speech frame
     # find local maximal at + or - win size
@@ -206,8 +204,7 @@ def div_gauss(cep, show='empty', win=250, shift=0):
     diarization_out = Diar()
     spk = 0
     for i in range(0, len(borders) - 1):
-        diarization_out.append(show=show, start=shift+borders[i],
-                         stop=shift+borders[i + 1], cluster='S' + str(spk))
+        diarization_out.append(show=show, start=shift + borders[i], stop=shift + borders[i + 1], cluster='S' + str(spk))
         spk += 1
     return diarization_out
 
@@ -224,9 +221,9 @@ def segmentation(cep, diarization, win_size=250):
         else:
             diarization_out.append_seg(segment)
 
-    i=0
+    i = 0
     for segment in diarization_out:
-        segment['cluster'] = 'S'+str(i)
+        segment['cluster'] = 'S' + str(i)
         i += 1
 
     return diarization_out
@@ -273,7 +270,7 @@ def bic_linear(cep, diarization, alpha, sr=False):
 
     if len(diarization) <= 1:
         return diarization_out
-    segment1 = diarization_out[0];
+    segment1 = diarization_out[0]
     features1 = segment1.seg_features(cep)
     model1 = GaussFull(segment1['cluster'], dim)
     model1.add(features1)
@@ -281,8 +278,8 @@ def bic_linear(cep, diarization, alpha, sr=False):
     i = 1
 
     while i < len(diarization_out):
-        segment2 = diarization_out[i];
-        if segment2['start'] > segment1['stop']+1:
+        segment2 = diarization_out[i]
+        if segment2['start'] > segment1['stop'] + 1:
             # logging.warning('there is a hole between segment')
             i += 1
             segment1 = segment2
@@ -299,16 +296,13 @@ def bic_linear(cep, diarization, alpha, sr=False):
         delta_bic = model12.partial_bic - model1.partial_bic - model2.partial_bic - p
         #print(i, v, p)
         if delta_bic < 0.0:
-            logging.debug('linear remove %s %s: %i/%i %f', model1.name, model2.name, i,
-                          len(diarization_out), delta_bic)
+            logging.debug('linear remove %s %s: %i/%i %f', model1.name, model2.name, i, len(diarization_out), delta_bic)
             segment1['stop'] = segment2['stop']
             model1 = model12
             del diarization_out[i]
         else:
-            logging.debug('linear next %s %s: %i/%i %f', model1.name, model2.name, i,
-                          len(diarization_out), delta_bic)
+            logging.debug('linear next %s %s: %i/%i %f', model1.name, model2.name, i, len(diarization_out), delta_bic)
             segment1 = segment2
             model1 = model2
             i += 1
     return diarization_out
-

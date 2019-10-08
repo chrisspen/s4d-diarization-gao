@@ -8,7 +8,9 @@ import time
 import os
 from s4d.clustering.hac_utils import *
 
+
 class ILP_IV:
+
     def __init__(self, diar, scores, threshold=0.0):
         self.sep = '!!'
         self.dic = dict()
@@ -85,7 +87,7 @@ class ILP_IV:
                     #boundaries <= 0
                     col = '{}{}{}'.format(cluster_i, self.sep, cluster_j)
                     idx = lp.add_rows(1)
-                    lp.set_mat_row(idx, {'{}{}{}'.format(cluster_j, self.sep, cluster_j):-1, col:1})
+                    lp.set_mat_row(idx, {'{}{}{}'.format(cluster_j, self.sep, cluster_j): -1, col: 1})
                     lp.set_row_bnds(idx, None, 0)
 
             lp.set_mat_row(row, r_cols)
@@ -104,8 +106,8 @@ class ILP_IV:
 
         cluster_dict = dict()
         for i in range(lp.get_num_cols()):
-            names = lp.get_col_name(i+1).split(self.sep)
-            activity = lp.get_col_prim(i+1)
+            names = lp.get_col_name(i + 1).split(self.sep)
+            activity = lp.get_col_prim(i + 1)
             if activity == 1 and names[0] != names[1]:
                 if names[1] not in cluster_dict:
                     cluster_dict[names[1]] = []
@@ -115,8 +117,6 @@ class ILP_IV:
         for idx in cluster_dict:
             table.rename('cluster', cluster_dict[idx], idx)
         return table, cluster_dict
-
-
 
     def _perform(self, filename='tmp.ilp', rm_tmp=True):
         """
@@ -147,9 +147,9 @@ class ILP_IV:
             table.rename('cluster', cluster_dict[idx], idx)
         if rm_tmp:
             os.remove(filename)
-            os.remove(filename+ '.out')
-            os.remove(filename+ '.err')
-            while os.path.exists(filename) or os.path.exists(filename+ '.out') or os.path.exists(filename+ '.err'):
+            os.remove(filename + '.out')
+            os.remove(filename + '.err')
+            while os.path.exists(filename) or os.path.exists(filename + '.out') or os.path.exists(filename + '.err'):
                 time.sleep(1)
         return table, cluster_dict
 
@@ -163,22 +163,20 @@ class ILP_IV:
             f.write(' + {}{}{}'.format(cluster, self.sep, cluster))
         # sum of dist > thr in the lower triangular part od the distance matrix
 
-        mask = (np.tril(distances, -1)>t)
+        mask = (np.tril(distances, -1) > t)
         threshold = np.tril(distances, -1).copy()
         threshold[mask] = 0
         s = np.sum(threshold) + 1
         #s = np.sum(stats.threshold(np.tril(distances, -1), threshmax=t, newval=0)) + 1
-        logging.debug('ilp sum scores: '+str(s))
+        logging.debug('ilp sum scores: ' + str(s))
         l = len(cluster_list)
         for i in range(l):
             cluster_i = cluster_list[i]
-            for j in range(i+1, l):
+            for j in range(i + 1, l):
                 if distances[i, j] < t:
                     cluster_j = cluster_list[j]
                     v = distances[i, j] / s
-                    f.write(
-                        ' +{} {}{}{} '.format(v, cluster_i, self.sep,
-                                                cluster_j))
+                    f.write(' +{} {}{}{} '.format(v, cluster_i, self.sep, cluster_j))
         f.write("\nSubject to\n")
 
         # x_i,i is a centre or not
@@ -193,8 +191,7 @@ class ILP_IV:
         for i, cluster_i in enumerate(cluster_list):
             for j, cluster_j in enumerate(cluster_list):
                 if i != j and distances[i, j] < t:
-                    f.write("{}{}{} - {}{}{} <=0\n".format(cluster_i, self.sep, cluster_j,
-                                                           cluster_j, self.sep, cluster_j))
+                    f.write("{}{}{} - {}{}{} <=0\n".format(cluster_i, self.sep, cluster_j, cluster_j, self.sep, cluster_j))
         f.write('End')
 
     def _ilp_read(self, f):

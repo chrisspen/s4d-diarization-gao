@@ -18,13 +18,14 @@ def argmin(distances, nb):
     try:
         i, j = np.unravel_index(np.nanargmin(tmp_dist), tmp_dist.shape)
     except ValueError:
-        logging.warning('value are NaN, nb:'+str(nb))
+        logging.warning('value are NaN, nb:' + str(nb))
         logging.warning(distances)
         logging.warning(tmp_dist)
         return 0, 0, np.inf
 
     v = distances[i, j]
     return i, j, v
+
 
 def argmax(distances, nb):
     """
@@ -41,7 +42,7 @@ def argmax(distances, nb):
     try:
         i, j = np.unravel_index(np.nanargmax(tmp_dist), tmp_dist.shape)
     except ValueError:
-        logging.warning('value are NaN, nb:'+str(nb))
+        logging.warning('value are NaN, nb:' + str(nb))
         logging.warning(distances)
         logging.warning(tmp_dist)
         return 0, 0, -np.inf
@@ -79,6 +80,7 @@ def bic_square_root(ni, nj, alpha, dim):
     covariance = (np.log(ni) + np.log(nj)) - np.log(nij)
     #print(ni, nj, nij, alpha, dim, constant_covariance, constant_mean, mean, covariance)
     return (constant_covariance * covariance) + (constant_mean * mean)
+
 
 def stat_server_remove(stat_server, index):
     """
@@ -138,9 +140,8 @@ def scores_remove(scores, index_model=None, index_seg=None):
 def scores2distance(scores, threshold):
     distance = (scores.scoremat + scores.scoremat.T) / 2.0 * -1.0
     np.fill_diagonal(distance, np.inf)
-    min = np.min(distance)-1
+    min = np.min(distance) - 1
     distance -= min
     np.fill_diagonal(distance, 0.0)
     t = -1.0 * threshold - min
     return distance, t
-

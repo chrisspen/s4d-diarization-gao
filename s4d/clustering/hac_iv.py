@@ -35,13 +35,10 @@ def hac_iv(diar, scores, method="complete", threshold=0.0):
     #print(cluster_list)
     while i < len(link) and link[i, 2] < t:
         # the cluster_list of the 2 clusters
-        logging.debug('c0: {:d} c1: {:d} value: {:.4f}'.format(int(link[i, 0]),
-                                                              int(link[i, 1]),
-                                                              link[i, 2]))
+        logging.debug('c0: {:d} c1: {:d} value: {:.4f}'.format(int(link[i, 0]), int(link[i, 1]), link[i, 2]))
         c0 = cluster_list[int(link[i, 0])]
         c1 = cluster_list[int(link[i, 1])]
-        logging.debug(
-            '\t c0: {} c1: {} value: {:.4f}'.format(c0, c1, link[i, 2]))
+        logging.debug('\t c0: {} c1: {} value: {:.4f}'.format(c0, c1, link[i, 2]))
         information(merge, i, c0, c1, link[i, 2])
         if c1 in cluster_dict:
             # c0 is put in c1, and c1 is not empty
@@ -59,6 +56,7 @@ def hac_iv(diar, scores, method="complete", threshold=0.0):
 
     return ldiar, cluster_dict, merge
 
+
 # def hac_update_model(diarization, ivectors):
 
 
@@ -73,10 +71,10 @@ def hac_iv_it(diar, model_iv, threshold=0.0):
     nb_merge = 0
     while v > threshold and nb > 1:
         nb_merge += 1
-        logging.info('merge: %d c1: %s (%d) c2: %s (%d) dist: %f, size: %d',
-                     nb_merge, model_iv_local.scores.modelset[i], i,
-                     model_iv_local.scores.modelset[j], j,
-                     v, model_iv_local.scores.modelset.shape[0])
+        logging.info(
+            'merge: %d c1: %s (%d) c2: %s (%d) dist: %f, size: %d', nb_merge, model_iv_local.scores.modelset[i], i, model_iv_local.scores.modelset[j], j, v,
+            model_iv_local.scores.modelset.shape[0]
+        )
         name_i = model_iv_local.scores.modelset[i]
         name_j = model_iv_local.scores.modelset[j]
 
@@ -87,6 +85,4 @@ def hac_iv_it(diar, model_iv, threshold=0.0):
         nb = model_iv_local.scores.modelset.shape[0]
         i, j, v = argmax(model_iv_local.scores.scoremat, nb)
 
-
     return model_iv_local.diar
-

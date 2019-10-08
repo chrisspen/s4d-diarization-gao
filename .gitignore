@@ -8,3 +8,4 @@ gaoS4D/
 *.geany
 *.cenv
 *.env
+/output

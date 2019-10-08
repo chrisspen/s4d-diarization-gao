@@ -8,15 +8,13 @@ from collections import namedtuple
 from sidekit.bosaris.scores import Scores
 from s4d.clustering.hac_utils import *
 
+ConnectedComponentTuple = namedtuple('ConnectedComponent', ['type', 'diarization', 'scores'])
 
-ConnectedComponentTuple = namedtuple('ConnectedComponent', ['type', 'diarization', 'scores' ])
-
-
-StarGraphTuple = namedtuple('ConnectedComponent', ['type', 'diarization', 'scores',
-                                                     'center', 'within_inertia'])
+StarGraphTuple = namedtuple('ConnectedComponent', ['type', 'diarization', 'scores', 'center', 'within_inertia'])
 
 
 class ConnectedComponent:
+
     def __init__(self, diar, scores, threshold):
         """
         :param diarization: s4d annotation
@@ -37,7 +35,6 @@ class ConnectedComponent:
         self.nb_sg = 0
         self.nb_sg0 = 0
         self.n = 0
-
 
     def _star_graph(self, lst, graph):
         """
@@ -66,7 +63,7 @@ class ConnectedComponent:
         logging.debug('threshold the distance matrix')
         distances, t = scores2distance(self.scores, self.thr)
 
-        mask = (distances>t)
+        mask = (distances > t)
         graph = distances.copy()
         graph[mask] = np.inf
         #graph = threshold(distances, threshmax=t, newval=np.inf)
@@ -113,9 +110,10 @@ class ConnectedComponent:
                     self.n += 1
 
             self.cc_list.append(cc)
-        logging.debug('-- stat CC '+str(self.thr)+' -- nb_sg0: '+str(self.nb_sg0)
-                     +' nb_sg: '+str(self.nb_sg)+' cc: '+str(self.n)+ ' nb: '
-                     +str(self.n + self.nb_sg0 + self.nb_sg)+'/'+str(cc_nb))
+        logging.debug(
+            '-- stat CC ' + str(self.thr) + ' -- nb_sg0: ' + str(self.nb_sg0) + ' nb_sg: ' + str(self.nb_sg) + ' cc: ' + str(self.n) + ' nb: ' +
+            str(self.n + self.nb_sg0 + self.nb_sg) + '/' + str(cc_nb)
+        )
         return diar_out, self.cc_list, self.nb_sg0, self.nb_sg, self.n
 
 
@@ -123,4 +121,3 @@ def connexted_component(diar, scores, threshold):
 
     graphs = ConnectedComponent(diar, scores, threshold)
     return graphs.sub_graph()
-

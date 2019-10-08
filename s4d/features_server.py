@@ -20,7 +20,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with SIDEKIT.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 Copyright 2014-2016 Sylvain Meignier and Anthony Larcher
 
@@ -45,7 +44,6 @@ if sys.version_info.major == 3:
 else:
     import Queue
 # import memory_profiler
-
 
 __license__ = "LGPL"
 __author__ = "Anthony Larcher"
@@ -106,34 +104,36 @@ class FeaturesServer_test(FeaturesServer):
 
     """
 
-    def __init__(self, input_dir=None,
-                 feature_id=None,
-                 config=None,
-                 sampling_frequency=None,
-                 lower_frequency=None,
-                 higher_frequency=None,
-                 linear_filters=None,
-                 log_filters=None,
-                 window_size=None,
-                 shift=None,
-                 ceps_number=None,
-                 snr=None,
-                 vad=None,
-                 feat_norm=None,
-                 log_e=None,
-                 dct_pca=False,
-                 dct_pca_config=None,
-                 sdc=False,
-                 sdc_config=None,
-                 delta=None,
-                 double_delta=None,
-                 delta_filter=None,
-                 rasta=None,
-                 keep_all_features=None,
-                 spec=False,
-                 mspec=False,
-                 mask=None
-                 ):
+    def __init__(
+        self,
+        input_dir=None,
+        feature_id=None,
+        config=None,
+        sampling_frequency=None,
+        lower_frequency=None,
+        higher_frequency=None,
+        linear_filters=None,
+        log_filters=None,
+        window_size=None,
+        shift=None,
+        ceps_number=None,
+        snr=None,
+        vad=None,
+        feat_norm=None,
+        log_e=None,
+        dct_pca=False,
+        dct_pca_config=None,
+        sdc=False,
+        sdc_config=None,
+        delta=None,
+        double_delta=None,
+        delta_filter=None,
+        rasta=None,
+        keep_all_features=None,
+        spec=False,
+        mspec=False,
+        mask=None
+    ):
         """ Process of extracting the feature frames (LFCC or MFCC) from an audio signal.
         Speech Activity Detection, MFCC (or LFCC) extraction and normalization.
         Can include RASTA filtering, Short Term Gaussianization, MVN and delta
@@ -195,7 +195,6 @@ class FeaturesServer_test(FeaturesServer):
             pass
         else:
             raise Exception('unknown configuration value')
-
 
         # Manually entered parameters are applied
         if input_dir is not None:
@@ -260,21 +259,15 @@ class FeaturesServer_test(FeaturesServer):
             self.from_file = 'hdf5'
 
     def __repr__(self):
-        ch = '\t show: {} keep_all_features: {} from_file: {}\n'.format(
-            self.show, self.keep_all_features, self.from_file)
+        ch = '\t show: {} keep_all_features: {} from_file: {}\n'.format(self.show, self.keep_all_features, self.from_file)
         ch += '\t inputDir: {}  \n'.format(self.input_dir)
-        ch += '\t lower_frequency: {}  higher_frequency: {} \n'.format(
-            self.lower_frequency, self.higher_frequency)
+        ch += '\t lower_frequency: {}  higher_frequency: {} \n'.format(self.lower_frequency, self.higher_frequency)
         ch += '\t sampling_frequency: {} '.format(self.sampling_frequency)
-        ch += '\t linear_filters: {}  or log_filters: {} \n'.format(
-            self.linear_filters, self.log_filters)
-        ch += '\t ceps_number: {}  window_size: {} shift: {} \n'.format(
-            self.ceps_number, self.window_size, self.shift)
+        ch += '\t linear_filters: {}  or log_filters: {} \n'.format(self.linear_filters, self.log_filters)
+        ch += '\t ceps_number: {}  window_size: {} shift: {} \n'.format(self.ceps_number, self.window_size, self.shift)
         ch += '\t vad: {}  snr: {} \n'.format(self.vad, self.snr)
         ch += '\t feat_norm: {} rasta: {} \n'.format(self.feat_norm, self.rasta)
-        ch += '\t log_e: {} delta: {} double_delta: {} \n'.format(self.log_e,
-                                                                  self.delta,
-                                                                  self.double_delta)
+        ch += '\t log_e: {} delta: {} double_delta: {} \n'.format(self.log_e, self.delta, self.double_delta)
         return ch
 
     def _config_diar_16k(self):
@@ -413,7 +406,7 @@ class FeaturesServer_test(FeaturesServer):
         shift_sample = int(self.shift * self.sampling_frequency)
 
         audio_filename = self.input_dir.format(s=show)
-        logging.debug('--> '+audio_filename)
+        logging.debug('--> ' + audio_filename)
         if not os.path.isfile(audio_filename):
             logging.error('%s %s', audio_filename, show)
             raise IOError('File ' + audio_filename + ' not found')
@@ -423,13 +416,13 @@ class FeaturesServer_test(FeaturesServer):
         if rate != self.sampling_frequency:
             raise "file rate don't match the rate of the feature server configuration"
         self.audio_filename = audio_filename
-        logging.info('size of signal: %f len %d type size %d', x.nbytes/1024/1024, len(x), x.nbytes/len(x))
+        logging.info('size of signal: %f len %d type size %d', x.nbytes / 1024 / 1024, len(x), x.nbytes / len(x))
 
         if x.ndim == 1:
             x = x[:, np.newaxis]
 
         for i in range(0, 200, 5):
-            print('==> ', i, x[i:i+5])
+            print('==> ', i, x[i:i + 5])
 
         channel_ext = []
         channel_nb = x.shape[1]
@@ -454,10 +447,7 @@ class FeaturesServer_test(FeaturesServer):
             end = min(dec, l)
             while start < l - dec2:
                 # if end < l:
-                logging.info('process part : %f %f %f',
-                             start / self.sampling_frequency,
-                             end / self.sampling_frequency,
-                             l / self.sampling_frequency)
+                logging.info('process part : %f %f %f', start / self.sampling_frequency, end / self.sampling_frequency, l / self.sampling_frequency)
 
                 tmp = self._features_chan(show, channel_ext, x[start:end, chan])
 
@@ -472,8 +462,7 @@ class FeaturesServer_test(FeaturesServer):
                 start = end - dec2
                 end = min(end + dec, l)
                 if cep[-1].shape[0] > 0:
-                    logging.info('!! size of signal cep: %f len %d type size %d', cep[-1].nbytes/1024/1024, len(cep[-1]),
-                             cep[-1].nbytes/len(cep[-1]))
+                    logging.info('!! size of signal cep: %f len %d type size %d', cep[-1].nbytes / 1024 / 1024, len(cep[-1]), cep[-1].nbytes / len(cep[-1]))
         del x
         # Smooth the cluster_list and fuse the channels if more than one.
         logging.info('Smooth the cluster_list and fuse the channels if more than one')
@@ -492,7 +481,6 @@ class FeaturesServer_test(FeaturesServer):
         return cep, label
 
     def _features_chan(self, show, channel_ext, x):
-
         """Compelete the overwhole process of extracting the feature frames
         (LFCC or MFCC) from an audio signal.
         Speech Activity Detection, MFCC (or LFCC) extraction and normalization.
@@ -510,14 +498,19 @@ class FeaturesServer_test(FeaturesServer):
 
         # Extract cepstral coefficients
         else:
-            c = mfcc(x, fs=self.sampling_frequency,
-                 lowfreq=self.lower_frequency,
-                 maxfreq=self.higher_frequency,
-                 nlinfilt=self.linear_filters,
-                 nwin=self.window_size, nlogfilt=self.log_filters,
-                 nceps=self.ceps_number, get_spec=self.spec,
-                 get_mspec=self.mspec)
-            print('test MFCC: cep', c[0][0:5,:])
+            c = mfcc(
+                x,
+                fs=self.sampling_frequency,
+                lowfreq=self.lower_frequency,
+                maxfreq=self.higher_frequency,
+                nlinfilt=self.linear_filters,
+                nwin=self.window_size,
+                nlogfilt=self.log_filters,
+                nceps=self.ceps_number,
+                get_spec=self.spec,
+                get_mspec=self.mspec
+            )
+            print('test MFCC: cep', c[0][0:5, :])
             print('test MFCC: e', c[1][0:5])
 
             if self.ceps_number == 0 and self.mspec:
@@ -532,13 +525,9 @@ class FeaturesServer_test(FeaturesServer):
                 if self.delta or self.double_delta:
                     cep = self._delta_and_2delta(cep)
                 elif self.dct_pca:
-                    cep = pca_dct(cep, self.dct_pca_config[0],
-                                  self.dct_pca_config[1],
-                                  self.dct_pca_config[2])
+                    cep = pca_dct(cep, self.dct_pca_config[0], self.dct_pca_config[1], self.dct_pca_config[2])
                 elif self.sdc:
-                    cep = shifted_delta_cepstral(cep, d=self.sdc_config[0],
-                                                 P=self.sdc_config[1],
-                                                 k=self.sdc_config[2])
+                    cep = shifted_delta_cepstral(cep, d=self.sdc_config[0], P=self.sdc_config[1], k=self.sdc_config[2])
         return cep, label
 
     def _log_e(self, c):
@@ -567,13 +556,10 @@ class FeaturesServer_test(FeaturesServer):
         elif self.vad == 'snr':
             logging.info('vad : snr')
             window_sample = int(self.window_size * self.sampling_frequency)
-            label = vad_snr(x, self.snr, fs=self.sampling_frequency,
-                            shift=self.shift, nwin=window_sample)
+            label = vad_snr(x, self.snr, fs=self.sampling_frequency, shift=self.shift, nwin=window_sample)
         elif self.vad == 'energy':
             logging.info('vad : energy')
-            label = vad_energy(logEnergy, distribNb=3,
-                               nbTrainIt=8, flooring=0.0001,
-                               ceiling=1.5, alpha=0.1)
+            label = vad_energy(logEnergy, distribNb=3, nbTrainIt=8, flooring=0.0001, ceiling=1.5, alpha=0.1)
         else:
             logging.warning('Wrong VAD type')
         return label
@@ -668,7 +654,7 @@ class FeaturesServer_test(FeaturesServer):
             logging.debug('load hdf5: ' + show)
             input_filename = self.input_dir.format(s=show)
             with h5py.File(input_filename, "r") as hdf5_input_fh:
-                logging.debug('*** '+input_filename+' '+show)
+                logging.debug('*** ' + input_filename + ' ' + show)
                 vad = True
                 if self.vad is None:
                     vad = False
@@ -723,10 +709,8 @@ class FeaturesServer_test(FeaturesServer):
         write_hdf5(show, hdf5_ouput_fh, self.cep[0], label=self.label[0])
         hdf5_ouput_fh.close()
 
-
     @process_parallel_lists
-    def save_list(self, audio_file_list, feature_file_list, mfcc_format, feature_dir,
-                  feature_file_extension, and_label=False, numThread=1):
+    def save_list(self, audio_file_list, feature_file_list, mfcc_format, feature_dir, feature_file_extension, and_label=False, numThread=1):
         """
         Function that takes a list of audio files and extract features
 
@@ -757,8 +741,7 @@ class FeaturesServer_test(FeaturesServer):
         logging.warning('cep dim computed using featureServer parameters')
         return dim
 
-    def save_parallel(self, input_audio_list, output_feature_list, mfcc_format, feature_dir,
-                      feature_file_extension, and_label=False, numThread=1):
+    def save_parallel(self, input_audio_list, output_feature_list, mfcc_format, feature_dir, feature_file_extension, and_label=False, numThread=1):
         """
         Extract features from audio file using parallel computation
 
@@ -779,9 +762,7 @@ class FeaturesServer_test(FeaturesServer):
         jobs = []
         multiprocessing.freeze_support()
         for idx, feat in enumerate(loa):
-            p = multiprocessing.Process(target=self.save_list,
-                                        args=(loa[idx], lof[idx], mfcc_format, feature_dir,
-                                              feature_file_extension, and_label))
+            p = multiprocessing.Process(target=self.save_list, args=(loa[idx], lof[idx], mfcc_format, feature_dir, feature_file_extension, and_label))
             jobs.append(p)
             p.start()
         for p in jobs:
@@ -822,15 +803,14 @@ class FeaturesServer_test(FeaturesServer):
         :param fileList: a list of files to load
         :param numThread: numbe of thead (optional, default is 1)
         """
-        queue_in = multiprocessing.JoinableQueue(maxsize=len(fileList)+numThread)
+        queue_in = multiprocessing.JoinableQueue(maxsize=len(fileList) + numThread)
         queue_out = []
 
         # Start worker processes
         jobs = []
         for i in range(numThread):
             queue_out.append(multiprocessing.Queue())
-            p = multiprocessing.Process(target=self._load_and_stack_worker,
-                                        args=(queue_in, queue_out[i]))
+            p = multiprocessing.Process(target=self._load_and_stack_worker, args=(queue_in, queue_out[i]))
             jobs.append(p)
             p.start()
 
@@ -865,7 +845,7 @@ class FeaturesServer_test(FeaturesServer):
         :param fileList: a list of files to load
         :param numThread: numbe of thead (optional, default is 1)
         """
-        queue_in = multiprocessing.JoinableQueue(maxsize=len(fileList)+numThread)
+        queue_in = multiprocessing.JoinableQueue(maxsize=len(fileList) + numThread)
         queue_out = []
 
         # Start worker processes

@@ -1,27 +1,29 @@
 #-*- coding:utf-8 -*-
-from s4d.utils import *
-from s4d.diar import Diar
-from s4d import viterbi, segmentation
-from sidekit import features_server
-from s4d.clustering import hac_bic
-from sidekit.sidekit_io import init_logging
-# from s4d.gui.dendrogram import plot_dendrogram
-import h5py
-# import speakin_ivector
-import numpy as np
-from pydub import AudioSegment
+
 from collections import OrderedDict
 # import speakin_voice_feats
 import os
 
+# from sidekit import features_server
+# from sidekit.sidekit_io import init_logging
+from s4d.utils import *
+from s4d.diar import Diar
+from s4d import viterbi, segmentation
+from s4d.clustering import hac_bic
 from s4d.mfcc import get_mfcc_extractor, diff_feature, extract_feats
+# from s4d.gui.dendrogram import plot_dendrogram
+# import h5py
+# import speakin_ivector
+import numpy as np
+from pydub import AudioSegment
 
 _FRAME_SHIFT = 10
 _FRAME_LENGTH = 25
 # _mfccExtractor = speakin_voice_feats.genMfccExtractor(
-    # allow_downsample=True, sample_frequency=8000, frame_length=_FRAME_LENGTH, frame_shift=_FRAME_SHIFT, high_freq=3700, low_freq=20)#TODO
-_mfccExtractor = get_mfcc_extractor(fs=16000, win_length_ms=_FRAME_LENGTH, win_shift_ms=_FRAME_SHIFT, FFT_SIZE=2048)
+# allow_downsample=True, sample_frequency=8000, frame_length=_FRAME_LENGTH, frame_shift=_FRAME_SHIFT, high_freq=3700, low_freq=20)#TODO
+_mfccExtractor = get_mfcc_extractor(fs=8000, win_length_ms=_FRAME_LENGTH, win_shift_ms=_FRAME_SHIFT, FFT_SIZE=2048)
 # _deltaExtractor = speakin_voice_feats.createDeltaFeatures()#TODO
+
 
 def _paramSt():
     win_size = 100
@@ -30,11 +32,13 @@ def _paramSt():
     thr_vit = -80
     return win_size, thr_l, thr_h, thr_vit
 
+
 def _setOut(outPath):
     wdir = outPath
     if not os.path.exists(wdir):
         os.mkdir(wdir)
     return wdir
+
 
 def _getMfcc(wavFile, wdir, save_all):
     wavName = wavFile[:-4]
@@ -47,6 +51,7 @@ def _getMfcc(wavFile, wdir, save_all):
         fs = get_feature_server(wavFile, feature_server_type='sid8k')
     cep, vad = fs.load(wavName)
     return cep
+
 
 def _speakinMfcc(audioPath):
     rawAudio = AudioSegment.from_wav(audioPath)
@@ -64,8 +69,8 @@ def _speakinMfcc(audioPath):
 
     return rawAudio, mfccFeats
 
-def _initialSegmentation(mfcc, wavFile,
-                         save_all, wdir):
+
+def _initialSegmentation(mfcc, wavFile, save_all, wdir):
     wavName = wavFile[:-4]
     init_diar = segmentation.init_seg(mfcc, wavName)
     if save_all:
@@ -73,8 +78,8 @@ def _initialSegmentation(mfcc, wavFile,
         Diar.write_seg(init_filename, init_diar)
     return init_diar
 
-def _gaussDiverSegmentation(mfcc, wavFile,
-                            init_diar, win_size, wdir, save_all):
+
+def _gaussDiverSegmentation(mfcc, wavFile, init_diar, win_size, wdir, save_all):
     wavName = wavFile[:-4]
     seg_diar = segmentation.segmentation(mfcc, init_diar, win_size)
     if save_all:
@@ -82,8 +87,8 @@ def _gaussDiverSegmentation(mfcc, wavFile,
         Diar.write_seg(seg_filename, seg_diar)
     return seg_diar
 
-def _linearBic(mfcc, seg_diar,
-               thr_l, wavFile, wdir, save_all):
+
+def _linearBic(mfcc, seg_diar, thr_l, wavFile, wdir, save_all):
     wavName = wavFile[:-4]
     bicl_diar = segmentation.bic_linear(mfcc, seg_diar, thr_l, sr=False)
     if save_all:
@@ -91,8 +96,8 @@ def _linearBic(mfcc, seg_diar,
         Diar.write_seg(bicl_filename, bicl_diar)
     return bicl_diar
 
-def _bicAhc(mfcc, bicl_diar,
-            thr_h, wavFile, wdir, save_all):
+
+def _bicAhc(mfcc, bicl_diar, thr_h, wavFile, wdir, save_all):
     wavName = wavFile[:-4]
     bic = hac_bic.HAC_BIC(mfcc, bicl_diar, thr_h, sr=False)
     bich_diar = bic.perform(to_the_end=True)
@@ -102,6 +107,7 @@ def _bicAhc(mfcc, bicl_diar,
     #link, data = plot_dendrogram(bic.merge, 0)
     return bich_diar
 
+
 def _viterbiDecode(mfcc, bich_diar, thr_vit, wavFile, wdir, save_all):
     wavName = wavFile[:-4]
     vit_diar = viterbi.viterbi_decoding(mfcc, bich_diar, thr_vit)
@@ -110,6 +116,7 @@ def _viterbiDecode(mfcc, bich_diar, thr_vit, wavFile, wdir, save_all):
         Diar.write_seg(vit_filename, vit_diar)
     return vit_diar
 
+
 def _outputWave(wavFile, vit_diar, outPath):
     finalList = []
     spkMap = OrderedDict()
@@ -117,9 +124,9 @@ def _outputWave(wavFile, vit_diar, outPath):
     for info in vit_diar:
         spk, start, stop = info[1], info[3], info[4]
         if spk not in spkMap.keys():
-            spkMap[spk] = [(start,stop)]
+            spkMap[spk] = [(start, stop)]
         else:
-            spkMap[spk].append((start,stop))
+            spkMap[spk].append((start, stop))
     for spk, segList in spkMap.items():
         finalList.append(segList)
         print(spk, segList)
@@ -136,8 +143,8 @@ def _outputWave(wavFile, vit_diar, outPath):
             outAudio.export(outFile, format='wav')
     return finalList
 
-def _diarizationProcess(wavFile, mfccMethod, outPath):
 
+def _diarizationProcess(wavFile, mfccMethod, outPath):
 
     save_all = True
     win_size, thr_l, thr_h, thr_vit = _paramSt()
@@ -155,8 +162,7 @@ def _diarizationProcess(wavFile, mfccMethod, outPath):
         print('Testing for mfcc extraction', mfcc.shape)
     else:
         print('Need to type a correct mfcc extraction method ')
-        print('Useage: {} [wavFile] [mfccMethod] [outPath]'.format(
-            sys.argv[0]))
+        print('Useage: {} [wavFile] [mfccMethod] [outPath]'.format(sys.argv[0]))
         print('mfccMethod: "s4d" or "kaldi"')
         sys.exit(0)
 
@@ -167,20 +173,19 @@ def _diarizationProcess(wavFile, mfccMethod, outPath):
     vit_diar = _viterbiDecode(mfcc, bich_diar, thr_vit, wavFile, wdir, save_all)
     return vit_diar
 
+
 # def s4d_diarization(wavFile, mfccMethod, win_size, thr_l, thr_h, thr_vit):
 #     vit_diar = _diarizationProcess(wavFile, mfccMethod, outPath, win_size, thr_l, thr_h, thr_vit)
 #     finalList = _outputWave(wavFile, vit_diar, outPath)      #generate output wave file after diarization
 
-
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        print('Useage: {} [wavFile] [mfccMethod] [outPath]'.format(
-            sys.argv[0]))
+        print('Useage: {} [wavFile] [mfccMethod] [outPath]'.format(sys.argv[0]))
         print('mfccMethod: kaldi : mfcc extraction from kaldi, s4d: mfcc extraction from s4d')
         sys.exit(0)
     wavFile = sys.argv[1]
     mfccMethod = sys.argv[2]
     outPath = sys.argv[3]
     vit_diar = _diarizationProcess(wavFile, mfccMethod, outPath)
-    finalList = _outputWave(wavFile, vit_diar, outPath)      #generate output wave file after diarization
+    finalList = _outputWave(wavFile, vit_diar, outPath) #generate output wave file after diarization
     print(finalList)

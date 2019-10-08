@@ -8,10 +8,12 @@ from sidekit.statserver import StatServer
 # from bottleneck import argpartition
 from numpy import argpartition
 
+
 class HAC_CLR:
     """
     CLR Hierarchical Agglomerative Clustering (HAC) with GMM trained by MAP
     """
+
     def __init__(self, features_server, diar, ubm, ce=False, ntop=5):
         assert isinstance(features_server, FeaturesServer), 'First parameter has to be a FeatureServer'
         assert isinstance(diar, Diar), '2sd parameter has to be a Diar (segmentationContener)'
@@ -40,13 +42,13 @@ class HAC_CLR:
         cep = np.concatenate(cep_list, axis=0)
         return cep
 
-    def _ll(self, ubm, cep, mu=None, name='ubm', argtop = None):
+    def _ll(self, ubm, cep, mu=None, name='ubm', argtop=None):
         # ajouter le top gaussien
         lp = ubm.compute_log_posterior_probabilities(cep, mu=mu)
 
         if argtop is None:
             #logging.info('compute argtop '+speaker)
-            argtop = argpartition(lp*-1.0 , self.ntop, axis=1)[:, :self.ntop]
+            argtop = argpartition(lp * -1.0, self.ntop, axis=1)[:, :self.ntop]
             #logging.info(argtop.shape)
         if self.ntop is not None:
             #logging.info('use ntop '+speaker)
@@ -96,12 +98,12 @@ class HAC_CLR:
                 #    logging.debug(mu)
                 self.llr[i, j], _ = self._ll(self.ubm, cep_i, mu=mu, name=name_j, argtop=argtop)
             if self.ce:
-                self.llr[i,:] -= self.llr[i,i]
+                self.llr[i, :] -= self.llr[i, i]
             else:
-                self.llr[i,:] -= ll_ubm
+                self.llr[i, :] -= ll_ubm
 
         # logging.debug(self.llr)
-        self.dist = (self.llr + self.llr.T)*-1.0
+        self.dist = (self.llr + self.llr.T) * -1.0
         np.fill_diagonal(self.dist, np.finfo('d').max)
 
     def update(self, i, j, nb_threads=1):
@@ -128,18 +130,18 @@ class HAC_CLR:
             mu = self.stat_speaker.get_model_stat1_by_index(k)
             self.llr[i, k], _ = self._ll(self.ubm, cep_i, mu=mu, name=name_k)
         if self.ce:
-            self.llr[i,:] -= self.llr[i,i]
+            self.llr[i, :] -= self.llr[i, i]
         else:
-            self.llr[i,:] -= ll_ubm
+            self.llr[i, :] -= ll_ubm
 
-        self.dist = (self.llr + self.llr.T)*-1.0
+        self.dist = (self.llr + self.llr.T) * -1.0
         np.fill_diagonal(self.dist, np.finfo('d').max)
 
     def information(self, i, j, value):
         models = self.stat_speaker.modelset
         self.merge.append([self.nb_merge, models[i], models[j], value])
 
-    def perform(self, thr = 0.0, to_the_end=False):
+    def perform(self, thr=0.0, to_the_end=False):
         models = self.stat_speaker.modelset
         nb = len(models)
         self.nb_merge = -1
@@ -149,10 +151,9 @@ class HAC_CLR:
         i, j, v = argmin(self.dist, nb)
         self.nb_merge = 0
         while v < thr and nb > 1:
-            self.information(i ,j, v)
+            self.information(i, j, v)
             self.nb_merge += 1
-            logging.debug('merge: %d c1: %s (%d) c2: %s (%d) dist: %f',
-                          self.nb_merge, models[i], i, models[j], j, v)
+            logging.debug('merge: %d c1: %s (%d) c2: %s (%d) dist: %f', self.nb_merge, models[i], i, models[j], j, v)
             # update merge
             # update model and distance
             self.update(i, j)
@@ -162,10 +163,9 @@ class HAC_CLR:
         end_diar = copy.deepcopy(self.diar)
         if to_the_end:
             while nb > 1:
-                self.information(i ,j, v)
+                self.information(i, j, v)
                 self.nb_merge += 1
-                logging.debug('merge: %d c1: %s (%d) c2: %s (%d) dist: %f',
-                              self.nb_merge, models[i], i, models[j], j, v)
+                logging.debug('merge: %d c1: %s (%d) c2: %s (%d) dist: %f', self.nb_merge, models[i], i, models[j], j, v)
                 # update merge
                 # update model and distance
                 self.update(i, j)
@@ -173,6 +173,3 @@ class HAC_CLR:
                 i, j, v = argmin(self.dist, nb)
 
         return end_diar
-
-
-
