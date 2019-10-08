@@ -6,7 +6,7 @@ channels:
   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
   - defaults
   - conda-forge
-  - http://192.168.0.11:2020
+#  - http://192.168.0.11:2020
 dependencies:
   - audioread=2.1.5=py36_0
   - bson=0.5.4=py36_0
@@ -15,9 +15,9 @@ dependencies:
   - pyqt=4.11.4=py36_3
   - resampy=0.2.1=py_1
   - x264=1!152.20180717=h470a237_1
-  - speakin_base_algo_agent=0.0.3=py36
-  - speakin_ivector=0.0.2=py36
-  - speakin_voice_feats=0.0.7=py36
+#  - speakin_base_algo_agent=0.0.3=py36
+#  - speakin_ivector=0.0.2=py36
+#  - speakin_voice_feats=0.0.7=py36
   - libgfortran=3.0.0=1
   - qt=4.8.7=2
   - sip=4.18=py36_0
@@ -65,7 +65,7 @@ dependencies:
   - numba=0.40.0=py36h962f231_0
   - numpy=1.15.2=py36h1d66e8a_1
   - numpy-base=1.15.2=py36h81de0dd_1
-  - openssl=1.1.1=h7b6447c_0
+  - openssl=1.1.1
   - pcre=8.42=h439df22_0
   - pip=10.0.1=py36_0
   - pyparsing=2.2.1=py36_0
@@ -94,5 +94,4 @@ dependencies:
     - sidekit==1.2.3
     - sortedcontainers==1.5.9
     - theano==1.0.3
-prefix: /home/yongyu/anaconda3/envs/s4d
-
+prefix: /home/chris/git/s4d-diarization-gao/.cenv

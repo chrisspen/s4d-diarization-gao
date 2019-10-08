@@ -5,7 +5,8 @@ from sidekit import Mixture, FeaturesServer
 from s4d.clustering.hac_utils import argmin, roll
 from s4d.diar import Diar
 from sidekit.statserver import StatServer
-from bottleneck import argpartition
+# from bottleneck import argpartition
+from numpy import argpartition
 
 class HAC_CLR:
     """

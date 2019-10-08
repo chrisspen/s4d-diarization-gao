@@ -5,22 +5,23 @@ from s4d import viterbi, segmentation
 from sidekit import features_server
 from s4d.clustering import hac_bic
 from sidekit.sidekit_io import init_logging
-from s4d.gui.dendrogram import plot_dendrogram
+# from s4d.gui.dendrogram import plot_dendrogram
 import h5py
-import speakin_ivector
+# import speakin_ivector
 import numpy as np
 from pydub import AudioSegment
 from collections import OrderedDict
-import speakin_voice_feats
+# import speakin_voice_feats
 import os
 
-
+from s4d.mfcc import get_mfcc_extractor, diff_feature, extract_feats
 
 _FRAME_SHIFT = 10
 _FRAME_LENGTH = 25
-_mfccExtractor = speakin_voice_feats.genMfccExtractor(
-    allow_downsample=True, sample_frequency=8000, frame_length=_FRAME_LENGTH, frame_shift=_FRAME_SHIFT, high_freq=3700, low_freq=20)
-_deltaExtractor = speakin_voice_feats.createDeltaFeatures()
+# _mfccExtractor = speakin_voice_feats.genMfccExtractor(
+    # allow_downsample=True, sample_frequency=8000, frame_length=_FRAME_LENGTH, frame_shift=_FRAME_SHIFT, high_freq=3700, low_freq=20)#TODO
+_mfccExtractor = get_mfcc_extractor(fs=16000, win_length_ms=_FRAME_LENGTH, win_shift_ms=_FRAME_SHIFT, FFT_SIZE=2048)
+# _deltaExtractor = speakin_voice_feats.createDeltaFeatures()#TODO
 
 def _paramSt():
     win_size = 100
@@ -55,8 +56,10 @@ def _speakinMfcc(audioPath):
         raise Exception("wrong sample width")
     if rawAudio.channels != 1:
         raise Exception("wrong channel count")
-    mfccFeats = speakin_voice_feats.extractFeats(_mfccExtractor, audioPath)
-    mfccFeats = speakin_voice_feats.computeDelta(_deltaExtractor, mfccFeats)
+    # mfccFeats = speakin_voice_feats.extractFeats(_mfccExtractor, audioPath)#TODO
+    mfccFeats = extract_feats(_mfccExtractor, audioPath)
+    # mfccFeats = speakin_voice_feats.computeDelta(_deltaExtractor, mfccFeats)#TODO
+    mfccFeats = diff_feature(mfccFeats)
     mfccFeats = np.array(mfccFeats)
 
     return rawAudio, mfccFeats

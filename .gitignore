@@ -6,3 +6,5 @@ tutorials/
 gaoS4D/
 *.out
 *.geany
+*.cenv
+*.env
