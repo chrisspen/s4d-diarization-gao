@@ -21,7 +21,9 @@ _FRAME_SHIFT = 10
 _FRAME_LENGTH = 25
 # _mfccExtractor = speakin_voice_feats.genMfccExtractor(
 # allow_downsample=True, sample_frequency=8000, frame_length=_FRAME_LENGTH, frame_shift=_FRAME_SHIFT, high_freq=3700, low_freq=20)#TODO
-_mfccExtractor = get_mfcc_extractor(fs=8000, win_length_ms=_FRAME_LENGTH, win_shift_ms=_FRAME_SHIFT, FFT_SIZE=2048)
+# FFT_SIZE = 2048
+FFT_SIZE = 1024
+_mfccExtractor = get_mfcc_extractor(fs=16000, win_length_ms=_FRAME_LENGTH, win_shift_ms=_FRAME_SHIFT, FFT_SIZE=FFT_SIZE)
 # _deltaExtractor = speakin_voice_feats.createDeltaFeatures()#TODO
 
 
@@ -45,6 +47,9 @@ def _getMfcc(wavFile, wdir, save_all):
     if save_all:
         fe = get_feature_extractor(wavFile, type_feature_extractor='sid8k')
         mfcc_filename = os.path.join(wdir, wavName + '.mfcc.h5')
+        print('Saving %s...' % mfcc_filename)
+        if os.path.isfile(mfcc_filename):
+            os.remove(mfcc_filename)
         fe.save(wavName, input_audio_filename=wavFile, output_feature_filename=mfcc_filename)
         fs = get_feature_server(mfcc_filename, feature_server_type='sid8k')
     else:
@@ -155,7 +160,6 @@ def _diarizationProcess(wavFile, mfccMethod, outPath):
         print('Using s4d mfcc extraction')
         mfcc = _getMfcc(wavFile, wdir, save_all)
         print('Testing for mfcc extraction', mfcc.shape)
-
     elif mfccMethod == 'KALDI':
         print('Using Kaldi mfcc extraction')
         rawAudio, mfcc = _speakinMfcc(wavFile)

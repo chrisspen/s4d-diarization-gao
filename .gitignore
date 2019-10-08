@@ -10,4 +10,4 @@ gaoS4D/
 *.env
 *.seg
 *.mfcc.h5
-/output
+/output*
